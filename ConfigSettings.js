@@ -1,4 +1,4 @@
-//#!/usr/bin/gjs
+//#!/usr/bin/cjs
 
 
 const Gio = imports.gi.Gio;
@@ -61,8 +61,8 @@ ConfigSettings.prototype = {
 	isNETEnabled: function() {
 		return this._prefs.net.enabled;
 	},
-	isDeviceEnabled: function(devicename) {
-		return this._prefs.net.devices[devicename].enabled;
+	isDeviceEnabled: function(devtype, devname) {
+		return this._prefs[devtype].devices[devname].enabled;
 	},
 	isNETAutoScaled: function() {
 		return this._prefs.net.autoscale;
@@ -77,14 +77,13 @@ ConfigSettings.prototype = {
 		}		
 		return disabledDeviceList;
 	},
-	getNETColorList: function()
-	{
+	getDeviceColorList: function(devtype) {
 		var colorlist = [];
-		for(var ifacename in this._prefs.net.devices)
+		for(var dname in this._prefs[devtype].devices)
 		{
-			if(this.isDeviceEnabled(ifacename))
+			if(this.isDeviceEnabled(devtype,dname))
 			{
-				colorlist = colorlist.concat(this._prefs.net.devices[ifacename].colors);
+				colorlist = colorlist.concat(this._prefs[devtype].devices[dname].colors);
 			}
 			else
 			{
@@ -93,13 +92,20 @@ ConfigSettings.prototype = {
 		}
 		return colorlist;
 	},
+	getNETColorList: function()
+	{
+		return this.getDeviceColorList("net");
+	},
 	
 	getNETWidth: function() {
 		return this._prefs.net.width;
 	},
-	
+
 	isDiskEnabled: function() {
 		return this._prefs.disk.enabled;
+	},
+	isDiskAutoScaled: function() {
+		return this._prefs.disk.autoscale;
 	},
 	getDiskWidth: function() {
 		return this._prefs.disk.width;
@@ -107,12 +113,16 @@ ConfigSettings.prototype = {
 	getDiskDisabledDevices: function()
 	{
 		var disabledDeviceList = [];
-		for(var ifacename in this._prefs.disk.devices)
+		for(var dname in this._prefs.disk.devices)
 		{
-			if(!this._prefs.disk.devices[ifacename].enabled)
-				disabledDeviceList.push(ifacename);
+			if(!this._prefs.disk.devices[dname].enabled)
+				disabledDeviceList.push(dname);
 		}		
 		return disabledDeviceList;
+	},
+	getDiskColorList: function()
+	{
+		return this.getDeviceColorList("disk");
 	},
 	adjustCPUcount: function(newcpucount)
 	{
@@ -134,69 +144,47 @@ ConfigSettings.prototype = {
 			this.saveSettings(); //to save
 		}
 	},
-	adjustNetInterfaces: function(newinterfacelist)
+	adjustDevices: function(devtype, newdevlist)
 	{
-		var oldifacecount = Object.keys(this._prefs.net.devices).length;
-		var ifacekeys = Object.keys(this._prefs.net.devices);
+		var oldifacecount = Object.keys(this._prefs[devtype].devices).length;
+		var ifacekeys = Object.keys(this._prefs[devtype].devices);
 		var newdevicesobj = {};
 		var ischanged = false;
-		for(var i=0; i<newinterfacelist.length; i++)
+		for(var i=0; i<newdevlist.length; i++)
 		{
-			if(ifacekeys.indexOf(newinterfacelist[i]) == -1)
+			if(ifacekeys.indexOf(newdevlist[i]) == -1)
 			{
 				//add it with new made up values
-				newdevicesobj[newinterfacelist[i]] = {enabled: true, colors: [[1,1,1,0.8],[0,0,0,0.6]]};
+				newdevicesobj[newdevlist[i]] = {enabled: true, show: true, colors: [[1,1,1,0.8],[0,0,0,0.6]]};
 				ischanged = true;
 			}
 			else
 			{
 				//reuse it and its values
-				newdevicesobj[newinterfacelist[i]] = this._prefs.net.devices[newinterfacelist[i]];
-				delete this._prefs.net.devices[newinterfacelist[i]];
+				newdevicesobj[newdevlist[i]] = this._prefs[devtype].devices[newdevlist[i]];
+				newdevicesobj[newdevlist[i]].show = true; //make sure it is not ignored
+				delete this._prefs[devtype].devices[newdevlist[i]];
 			}
 		}
 
 		//add unused ones in config, we should keep them you never know what happened
-		for(var devname in this._prefs.net.devices) {
-			newdevicesobj[devname] = this._prefs.net.devices[devname];
+		for(var devname in this._prefs[devtype].devices) {
+			newdevicesobj[devname] = this._prefs[devtype].devices[devname];
+			newdevicesobj[devname].show = false;
 		}
 		
-		this._prefs.net.devices = newdevicesobj;
+		this._prefs[devtype].devices = newdevicesobj;
 		//to save or not to save... only if the devices have changed
 		if(ischanged)
 			this.saveSettings(); //to save
 	},
-	adjustDiskDevices: function(newdevicelist)
+	adjustNetInterfaces: function(newdevlist)
 	{
-		var olddevcount = Object.keys(this._prefs.disk.devices).length;
-		var devkeys = Object.keys(this._prefs.disk.devices);
-		var newdevicesobj = {};
-		var ischanged = false;
-		for(var i=0; i<newdevicelist.length; i++)
-		{
-			if(devkeys.indexOf(newdevicelist[i]) == -1)
-			{
-				//add it with new made up values
-				newdevicesobj[newdevicelist[i]] = {enabled: true, colors: [[1,1,1,0.8],[0,0,0,0.6]]};
-				ischanged = true;
-			}
-			else
-			{
-				//reuse it and its values
-				newdevicesobj[newdevicelist[i]] = this._prefs.disk.devices[newdevicelist[i]];
-				delete this._prefs.net.devices[newdevicelist[i]];
-			}
-		}
-
-		//add unused ones in config, we should keep them you never know what happened
-		for(var devname in this._prefs.disk.devices) {
-			newdevicesobj[devname] = this._prefs.disk.devices[devname];
-		}
-		
-		this._prefs.disk.devices = newdevicesobj;
-		//to save or not to save... only if the devices have changed
-		if(ischanged)
-			this.saveSettings(); //to save
+		this.adjustDevices("net", newdevlist);
+	},
+	adjustDiskDevices: function(newdevlist)
+	{
+		this.adjustDevices("disk", newdevlist);
 	},
 	updateSettings: function(newprefsContent) {
 		try{
@@ -241,17 +229,15 @@ ConfigSettings.prototype = {
 								"autoscale": false,
 								"width": 40,
 								"devices":{
-									"eth0": {
-									"enabled": true,
-									"colors": [[1,1,1,0.8],[0,0,0,0.6]],
-										},
+									"eth0": {"enabled": true,show:true,"colors": [[1,1,1,0.8],[0,0,0,0.6]]},
 									},
 							},
 							"disk": {
 								"enabled": false,
+								"autoscale": true,
 								"width": 40,
 								"devices":{
-									"/": { "enabled": true, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
+									"/": { "enabled": true, show:true,"colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
 									},
 							}
 						};

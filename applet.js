@@ -171,10 +171,11 @@ MyApplet.prototype = {
 		//Do any required processing when configuration changes
 		this.netProvider.setDisabledInterfaces(this.configSettings.getNETDisabledDevices());
 		this.netGraph.setAutoScale(this.configSettings.isNETAutoScaled());
+		
 		//check for new drives that are mounted
-		//this.configSettings.adjustDiskDevices(this.diskProvider.getDiskDevices());
+		this.configSettings.adjustDiskDevices( Object.keys(this.diskProvider.getDiskDevices()) );
+		this.diskGraph.setAutoScale(this.configSettings.isDiskAutoScaled());
 		//update data from providers.. a bit convoluted i may change later
-
 			for (var i = 0; i < this.graphs.length; i++)
 			{
 				this.graphs[i].refreshData();
@@ -290,7 +291,7 @@ MyApplet.prototype = {
 										this.configSettings.getDiskWidth(), 
 										this.configSettings.getHeight(), 
 										this.configSettings.getBackgroundColor(),
-										this.configSettings.getNETColorList());
+										this.configSettings.getDiskColorList());
 				
 				area.get_context().translate(-1*xoffset, 0); //return translation to origin
 				xoffset += this.configSettings.getDiskWidth()+1; //update xoffset for next translation

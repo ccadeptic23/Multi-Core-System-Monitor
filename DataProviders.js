@@ -286,27 +286,27 @@ DiskDataProvider.prototype = {
 		this.gtopFSusage = new GTop.glibtop_fsusage();
 		//var volumeMonitor = Gio.VolumeMonitor.get();
 		//let mounts = volumeMonitor.get_mounts();
-		this.mountedDirList = this.getDiskDevices();
-
+		this.mountedDisks = this.getDiskDevices();
+		
 		var d = new Date();
 		this.lastupdatetime = d.getTime();
 		this.currentReadings = this.getDiskRW();
 		
 		this.currentReadingRates = [];
-        for (let i = 0; i < this.mountedDirList.length; i++)
+        for (var dname in this.mountedDisks)//let i = 0; i < this.mountedDirList.length; i++)
         {
-            this.currentReadingRates[this.mountedDirList[i]] = { read: 0, write: 0};
+            this.currentReadingRates[dname] = { read: 0, write: 0};
 		}
 		
 	},
 	
     getData: function()
     {
-		this.mountedDirList = this.getDiskDevices();
+		this.mountedDisks = this.getDiskDevices();
 		var d = new Date();
 		var newUpdateTime = d.getTime();
 		var newReadings = this.getDiskRW();
-		//global.logError("newReadings");
+		//global.logError("newReadings");s
 		//for(var devname in newReadings)
 			//global.logError("\t"+devname+" r: "+newReadings[devname]["read"]+" w: "+newReadings[devname]["write"]);
 		var readingRatesList = [];
@@ -336,8 +336,6 @@ DiskDataProvider.prototype = {
 			{
 				global.logError("device: "+devname);
 			}
-
-
 		}
 		
 		this.currentReadings = newReadings;
@@ -353,14 +351,14 @@ DiskDataProvider.prototype = {
         let up = 0;
         var readings = [];
         
-        for (var i=0; i < this.mountedDirList.length; i++)
+        for (var dname in this.mountedDisks)//var i=0; i < this.mountedDirList.length; i++)
         {
-            GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDirList[i]);
+            GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDisks[dname] );
             //global.logError("blocksize: "+this.gtopFSusage.block_size);
             //global.logError("avail: "+this.gtopFSusage.bavail*this.gtopFSusage.block_size);
             //global.logError("free: "+this.gtopFSusage.bfree*this.gtopFSusage.block_size);
             //global.logError("");
-            readings[this.mountedDirList[i]] ={	read: this.gtopFSusage.read*this.gtopFSusage.block_size,
+            readings[dname] ={	read: this.gtopFSusage.read*this.gtopFSusage.block_size,
 												write: this.gtopFSusage.write*this.gtopFSusage.block_size};
         }
         //for(var devname in readings)
@@ -375,31 +373,34 @@ DiskDataProvider.prototype = {
 	getTooltipString: function()
 	{
 		var tooltipstr = "------disk------- \n";
-		for (var i=0; i < this.mountedDirList.length; i++)
+		for (var dname in this.mountedDisks)//var i=0; i < this.mountedDirList.length; i++)
         {
-			if(this.mountedDirList[i] in this.currentReadingRates) {
-			tooltipstr +=this.mountedDirList[i]+": R: "+this.currentReadingRates[this.mountedDirList[i]]["read"]+" "+": W: "+this.currentReadingRates[this.mountedDirList[i]]["write"]+" (MiB/s)\n";
-		}
+			if(dname in this.currentReadingRates)
+			{
+				tooltipstr +=dname+": R: "+this.currentReadingRates[dname]["read"]+" "+": W: "+this.currentReadingRates[dname]["write"]+" (MiB/s)\n";
+			}
 		}
 		return tooltipstr;
 	},
 	getDiskDevices: function()
 	{
+{
 		var volumeMonitor = Gio.VolumeMonitor.get();
 		var mounts = volumeMonitor.get_mounts();
-		mountedDirList = [];
-		mountedDirList.push("/"); //always here
-		//Disable finding other drives forrrrrrrr
-		//for(var i = 0; i < mounts.length; i++)
-		//{
-		//	//mountname = mounts[i].get_name();
-		//	var mountroot = mounts[i].get_root();
-		//	var mountdir = mountroot.get_parse_name();
-		//	
-		//	//global.logError("mountroot: "+mountroot+" mountname: "+mountname+" on "+mountdir);
-		//	mountedDirList.push(mountdir);
-		//}
-		return mountedDirList;
+		var mountedDirs = {};
+		mountedDirs["/"] = "/"; //always here
+		
+		for(var i = 0; i < mounts.length; i++)
+		{
+			var mountname = mounts[i].get_name();
+			var mountroot = mounts[i].get_root();
+			var mountdir = mountroot.get_parse_name();
+			
+			//print("mountroot: "+mountroot+" mountname: "+mountname+" on "+mountdir);
+			mountedDirs[mountname]=mountdir;
+		}
+		return mountedDirs;
+}
 	}
 };
 

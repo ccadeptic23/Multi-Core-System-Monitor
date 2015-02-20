@@ -243,8 +243,9 @@ GraphLineChart.prototype = {
 			}
 		}
 		
-		if(this.autoScale && (this.maxvalueloc < 0)) //find a new max we lost the old one
-		{
+        if(this.autoScale && (this.maxvalueloc < 0)) //find a new max we lost the old one
+        {
+			global.logError("Hello"+this.autoScale);
 			this.maxvalue = -1;
 			for( var i=0;i<this.dataPointsList.length; i++)
 			{
@@ -332,7 +333,6 @@ GraphLineChart.prototype = {
 
 				var x1 = this.pixelsPerDataPoint*(j-0.5) + this.pixelsPerDataPoint/4;
 				var x2 = this.pixelsPerDataPoint*(j)+ this.pixelsPerDataPoint/4;
-
 				
 				if(this.dataPointsList[j][i] == -1 || this.dataPointsList[j-1][i] == -1) //skip the beginning ones
 					continue;
@@ -343,7 +343,6 @@ GraphLineChart.prototype = {
 				cr.curveTo(x1, y1, x1, y2, x2, y2);
             }
             cr.stroke();
-         
         }
         
         // Label

@@ -37,14 +37,14 @@ const DEFAULT_CONFIG = {
 								"autoscale": false,
 								"width": 40,
 								"devices":{
-									"eth0": { "enabled": true, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
+									"eth0": { "enabled": true, "show":true,"colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
 									},
 							},
 							"disk": {
 								"enabled": true,
 								"width": 40,
 								"devices":{
-									"/": { "enabled": true, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
+									"/": { "enabled": true, "show":true, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
 									},
 							}
 						};
@@ -190,75 +190,77 @@ Preferences.prototype = {
         var counter=0;
         for(var devname in this.config.net.devices)
         {
-			
-			//build the device sections
-			var currentdev_vbox = new Gtk.VBox();
-			var currentdev_hbox = new Gtk.HBox();
-			var devLabel = new Gtk.Label({label: devname})
-			devLabel.set_halign(1); //start
-			var devEnableLabel = new Gtk.Label({label: "Enable"})
-			devEnableLabel.set_halign(2); //end
-			var devEnableSwitch = new Gtk.Switch();
-			devEnableSwitch.set_halign(1); //start
-			devEnableSwitch.set_margin_left(10);
-			var devDownColorButton = new Gtk.ColorButton();
-			devDownColorButton.set_halign(1);
-			devDownColorButton.set_use_alpha(true);
-			var devDownLabel = new Gtk.Label({label: "Down"});
-			devDownLabel.set_halign(2);
-			
-			var devUpColorButton = new Gtk.ColorButton();
-			devUpColorButton.set_halign(1);
-			devUpColorButton.set_use_alpha(true);
-			var devUpLabel = new Gtk.Label({label: "Up"});
-			devUpLabel.set_halign(2);
-			
-			//add them to the appropriate containers.
-			currentdev_vbox.add(devLabel);
-			currentdev_hbox.add(devEnableLabel);
-			currentdev_hbox.add(devEnableSwitch);
-			currentdev_hbox.add(devDownLabel);
-			currentdev_hbox.add(devDownColorButton);
-			currentdev_hbox.add(devUpLabel);
-			currentdev_hbox.add(devUpColorButton);
-			currentdev_vbox.add(currentdev_hbox);
-			currentdev_vbox.add(new Gtk.Separator({marginTop: 5}));
-			this.netDevicesChoicesBox.add(currentdev_vbox);
-			
-			//Configure the Widgets initial values
-			this.setColorByObject(devDownColorButton, this.config.net.devices[devname].colors[0]);
-			this.setColorByObject(devUpColorButton, this.config.net.devices[devname].colors[1]);
-			
-			devEnableSwitch.set_active(this.config.net.devices[devname].enabled);
-			if(!this.config.net.devices[devname].enabled)
+			if(this.config.net.devices[devname].show == true)
 			{
-				devDownLabel.set_sensitive(this.config.net.devices[devname].enabled);
-				devDownColorButton.set_sensitive(this.config.net.devices[devname].enabled);
-				devUpLabel.set_sensitive(this.config.net.devices[devname].enabled);
-				devUpColorButton.set_sensitive(this.config.net.devices[devname].enabled);
-			}
-			
-			//connect the widgets callbacks
-			devDownColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
-			devUpColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
-			devEnableSwitch.connect("notify::active", Lang.bind(this, function(myswitch) {
-					var isEnabled = myswitch.get_active();
-					var childrens = myswitch.get_parent().get_children();
-					
-					var startloc = childrens.indexOf(myswitch);
-					if(startloc >= 0)
-					{
-						for(var i = childrens.indexOf(myswitch)+1; i<childrens.length; i++)
+				//build the device sections
+				var currentdev_vbox = new Gtk.VBox();
+				var currentdev_hbox = new Gtk.HBox();
+				var devLabel = new Gtk.Label({label: devname})
+				devLabel.set_halign(1); //start
+				var devEnableLabel = new Gtk.Label({label: "Enable"})
+				devEnableLabel.set_halign(2); //end
+				var devEnableSwitch = new Gtk.Switch();
+				devEnableSwitch.set_halign(1); //start
+				devEnableSwitch.set_margin_left(10);
+				var devDownColorButton = new Gtk.ColorButton();
+				devDownColorButton.set_halign(1);
+				devDownColorButton.set_use_alpha(true);
+				var devDownLabel = new Gtk.Label({label: "Down"});
+				devDownLabel.set_halign(2);
+				
+				var devUpColorButton = new Gtk.ColorButton();
+				devUpColorButton.set_halign(1);
+				devUpColorButton.set_use_alpha(true);
+				var devUpLabel = new Gtk.Label({label: "Up"});
+				devUpLabel.set_halign(2);
+				
+				//add them to the appropriate containers.
+				currentdev_vbox.add(devLabel);
+				currentdev_hbox.add(devEnableLabel);
+				currentdev_hbox.add(devEnableSwitch);
+				currentdev_hbox.add(devDownLabel);
+				currentdev_hbox.add(devDownColorButton);
+				currentdev_hbox.add(devUpLabel);
+				currentdev_hbox.add(devUpColorButton);
+				currentdev_vbox.add(currentdev_hbox);
+				currentdev_vbox.add(new Gtk.Separator({marginTop: 5}));
+				this.netDevicesChoicesBox.add(currentdev_vbox);
+				
+				//Configure the Widgets initial values
+				this.setColorByObject(devDownColorButton, this.config.net.devices[devname].colors[0]);
+				this.setColorByObject(devUpColorButton, this.config.net.devices[devname].colors[1]);
+				
+				devEnableSwitch.set_active(this.config.net.devices[devname].enabled);
+				if(!this.config.net.devices[devname].enabled)
+				{
+					devDownLabel.set_sensitive(this.config.net.devices[devname].enabled);
+					devDownColorButton.set_sensitive(this.config.net.devices[devname].enabled);
+					devUpLabel.set_sensitive(this.config.net.devices[devname].enabled);
+					devUpColorButton.set_sensitive(this.config.net.devices[devname].enabled);
+				}
+				
+				//connect the widgets callbacks
+				devDownColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
+				devUpColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
+				devEnableSwitch.connect("notify::active", Lang.bind(this, function(myswitch) {
+						var isEnabled = myswitch.get_active();
+						var childrens = myswitch.get_parent().get_children();
+						
+						var startloc = childrens.indexOf(myswitch);
+						if(startloc >= 0)
 						{
-							childrens[i].set_sensitive(isEnabled);
+							for(var i = childrens.indexOf(myswitch)+1; i<childrens.length; i++)
+							{
+								childrens[i].set_sensitive(isEnabled);
+							}
 						}
-					}
-					this.save();
-				}));
-			this.netDownButtonList[counter] = devDownColorButton;
-			this.netUpButtonList[counter] = devUpColorButton;
-			this.netEnableSwitchList[counter] = devEnableSwitch;
-			counter++;
+						this.save();
+					}));
+				this.netDownButtonList[counter] = devDownColorButton;
+				this.netUpButtonList[counter] = devUpColorButton;
+				this.netEnableSwitchList[counter] = devEnableSwitch;
+				counter++;
+			}
 		}
 		//Disk Stuff
 		this.builder.get_object("diskEnableSwitch").set_active(this.config.disk.enabled);
@@ -277,9 +279,11 @@ Preferences.prototype = {
         this.diskUpButtonList = [];
         this.diskEnableSwitchList = [];
         var counter=0;
+        
         for(var devname in this.config.disk.devices)
         {
-			
+			if(this.config.disk.devices[devname].show == true)
+			{
 			//build the device sections
 			var currentdev_vbox = new Gtk.VBox();
 			var currentdev_hbox = new Gtk.HBox();
@@ -348,6 +352,7 @@ Preferences.prototype = {
 			this.diskUpButtonList[counter] = devUpColorButton;
 			this.diskEnableSwitchList[counter] = devEnableSwitch;
 			counter++;
+			}
 		}
     },
 	
