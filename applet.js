@@ -152,50 +152,50 @@ MyApplet.prototype = {
     
 	_update: function()
 	{
-				try{
-		if(this.childProcessHandler != null)
+		try
 		{
-			var currentmsg = this.childProcessHandler.getCurrentMessage();
-			//global.logError(currentmsg);
-			if(currentmsg == "SAVE")
-				this.configSettings.saveSettings();
-			else if(currentmsg != "SAVE" && currentmsg != "") //currentmsg is "" when we have not had time to read anything yet
-				this.configSettings.updateSettings(currentmsg);
-				
-			if(this.childProcessHandler.isChildFinished()) 
+			if(this.childProcessHandler != null)
 			{
-				this.childProcessHandler.destroy();
-				this.childProcessHandler=null;
+				var currentmsg = this.childProcessHandler.getCurrentMessage();
+				//global.logError(currentmsg);
+				if(currentmsg == "SAVE")
+					this.configSettings.saveSettings();
+				else if(currentmsg != "SAVE" && currentmsg != "") //currentmsg is "" when we have not had time to read anything yet
+					this.configSettings.updateSettings(currentmsg);
+					
+				if(this.childProcessHandler.isChildFinished()) 
+				{
+					this.childProcessHandler.destroy();
+					this.childProcessHandler=null;
+				}
 			}
-		}
-		//Do any required processing when configuration changes
-		this.netProvider.setDisabledInterfaces(this.configSettings.getNETDisabledDevices());
-		this.netGraph.setAutoScale(this.configSettings.isNETAutoScaled());
-		
-		//check for new drives that are mounted
-		this.configSettings.adjustDiskDevices( Object.keys(this.diskProvider.getDiskDevices()) );
-		this.diskGraph.setAutoScale(this.configSettings.isDiskAutoScaled());
-		//update data from providers.. a bit convoluted i may change later
+			//Do any required processing when configuration changes
+			this.netProvider.setDisabledInterfaces(this.configSettings.getNETDisabledDevices());
+			this.netGraph.setAutoScale(this.configSettings.isNETAutoScaled());
+			
+			//check for new drives that are mounted
+			this.configSettings.adjustDiskDevices( Object.keys(this.diskProvider.getDiskDevices()) );
+			this.diskGraph.setAutoScale(this.configSettings.isDiskAutoScaled());
+			
+			//update data from providers.. a bit convoluted i may change later
 			for (var i = 0; i < this.graphs.length; i++)
 			{
 				this.graphs[i].refreshData();
 			}
-
-		//global.logError(this.diskProvider.getData());
-		
-		this.graphArea.queue_repaint();
-		
-		//Set the Applet Tooltip
-		var appletTooltipstr = "";
-		appletTooltipstr += this.multiCpuProvider.getTooltipString();
-		appletTooltipstr += this.memProvider.getTooltipString();
-		appletTooltipstr += this.swapProvider.getTooltipString();
-		appletTooltipstr += this.netProvider.getTooltipString();
-		appletTooltipstr += this.diskProvider.getTooltipString();
-		this.set_applet_tooltip(appletTooltipstr.trim());
-		
-		
-		}catch(err) {
+	
+			//global.logError(this.diskProvider.getData());
+			
+			this.graphArea.queue_repaint();
+			
+			//Set the Applet Tooltip
+			var appletTooltipstr = "";
+			appletTooltipstr += this.multiCpuProvider.getTooltipString();
+			appletTooltipstr += this.memProvider.getTooltipString();
+			appletTooltipstr += this.swapProvider.getTooltipString();
+			appletTooltipstr += this.netProvider.getTooltipString();
+			appletTooltipstr += this.diskProvider.getTooltipString();
+			this.set_applet_tooltip(appletTooltipstr.trim());
+		} catch(err) {
 			global.logError(err);
 		}
 		//set next refresh time

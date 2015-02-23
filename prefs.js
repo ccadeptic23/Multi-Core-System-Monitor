@@ -42,9 +42,11 @@ const DEFAULT_CONFIG = {
 							},
 							"disk": {
 								"enabled": true,
+								"autoscale": false,
 								"width": 40,
 								"devices":{
 									"/": { "enabled": true, "show":true, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
+									"win": { "enabled": true, "show":false, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
 									},
 							}
 						};
@@ -190,100 +192,6 @@ Preferences.prototype = {
         var counter=0;
         for(var devname in this.config.net.devices)
         {
-			if(this.config.net.devices[devname].show == true)
-			{
-				//build the device sections
-				var currentdev_vbox = new Gtk.VBox();
-				var currentdev_hbox = new Gtk.HBox();
-				var devLabel = new Gtk.Label({label: devname})
-				devLabel.set_halign(1); //start
-				var devEnableLabel = new Gtk.Label({label: "Enable"})
-				devEnableLabel.set_halign(2); //end
-				var devEnableSwitch = new Gtk.Switch();
-				devEnableSwitch.set_halign(1); //start
-				devEnableSwitch.set_margin_left(10);
-				var devDownColorButton = new Gtk.ColorButton();
-				devDownColorButton.set_halign(1);
-				devDownColorButton.set_use_alpha(true);
-				var devDownLabel = new Gtk.Label({label: "Down"});
-				devDownLabel.set_halign(2);
-				
-				var devUpColorButton = new Gtk.ColorButton();
-				devUpColorButton.set_halign(1);
-				devUpColorButton.set_use_alpha(true);
-				var devUpLabel = new Gtk.Label({label: "Up"});
-				devUpLabel.set_halign(2);
-				
-				//add them to the appropriate containers.
-				currentdev_vbox.add(devLabel);
-				currentdev_hbox.add(devEnableLabel);
-				currentdev_hbox.add(devEnableSwitch);
-				currentdev_hbox.add(devDownLabel);
-				currentdev_hbox.add(devDownColorButton);
-				currentdev_hbox.add(devUpLabel);
-				currentdev_hbox.add(devUpColorButton);
-				currentdev_vbox.add(currentdev_hbox);
-				currentdev_vbox.add(new Gtk.Separator({marginTop: 5}));
-				this.netDevicesChoicesBox.add(currentdev_vbox);
-				
-				//Configure the Widgets initial values
-				this.setColorByObject(devDownColorButton, this.config.net.devices[devname].colors[0]);
-				this.setColorByObject(devUpColorButton, this.config.net.devices[devname].colors[1]);
-				
-				devEnableSwitch.set_active(this.config.net.devices[devname].enabled);
-				if(!this.config.net.devices[devname].enabled)
-				{
-					devDownLabel.set_sensitive(this.config.net.devices[devname].enabled);
-					devDownColorButton.set_sensitive(this.config.net.devices[devname].enabled);
-					devUpLabel.set_sensitive(this.config.net.devices[devname].enabled);
-					devUpColorButton.set_sensitive(this.config.net.devices[devname].enabled);
-				}
-				
-				//connect the widgets callbacks
-				devDownColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
-				devUpColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
-				devEnableSwitch.connect("notify::active", Lang.bind(this, function(myswitch) {
-						var isEnabled = myswitch.get_active();
-						var childrens = myswitch.get_parent().get_children();
-						
-						var startloc = childrens.indexOf(myswitch);
-						if(startloc >= 0)
-						{
-							for(var i = childrens.indexOf(myswitch)+1; i<childrens.length; i++)
-							{
-								childrens[i].set_sensitive(isEnabled);
-							}
-						}
-						this.save();
-					}));
-				this.netDownButtonList[counter] = devDownColorButton;
-				this.netUpButtonList[counter] = devUpColorButton;
-				this.netEnableSwitchList[counter] = devEnableSwitch;
-				counter++;
-			}
-		}
-		//Disk Stuff
-		this.builder.get_object("diskEnableSwitch").set_active(this.config.disk.enabled);
-		this.builder.get_object("diskEnableSwitch").connect("notify::active", Lang.bind(this, function()
-        {
-			var isEnabled = this.builder.get_object("diskEnableSwitch").get_active();
-			this.builder.get_object("diskSettingsBox").set_sensitive(isEnabled);
-			this.save();
-        }));
-        this.builder.get_object("diskSettingsBox").set_sensitive(this.config.disk.enabled);
-        this.builder.get_object("diskWidthScale").set_value(this.config.disk.width);
-		this.builder.get_object("diskWidthScale").connect("value-changed", Lang.bind(this, function() {this.save();}));
-		
-		this.diskDevicesChoicesBox = this.builder.get_object("diskDevicesChoicesBox");
-        this.diskDownButtonList = [];
-        this.diskUpButtonList = [];
-        this.diskEnableSwitchList = [];
-        var counter=0;
-        
-        for(var devname in this.config.disk.devices)
-        {
-			if(this.config.disk.devices[devname].show == true)
-			{
 			//build the device sections
 			var currentdev_vbox = new Gtk.VBox();
 			var currentdev_hbox = new Gtk.HBox();
@@ -316,7 +224,104 @@ Preferences.prototype = {
 			currentdev_hbox.add(devUpColorButton);
 			currentdev_vbox.add(currentdev_hbox);
 			currentdev_vbox.add(new Gtk.Separator({marginTop: 5}));
-			this.diskDevicesChoicesBox.add(currentdev_vbox);
+			
+			//show the device only if the config oks it
+			if( this.config.net.devices[devname].show )
+				this.netDevicesChoicesBox.add(currentdev_vbox);
+			
+			//Configure the Widgets initial values
+			this.setColorByObject(devDownColorButton, this.config.net.devices[devname].colors[0]);
+			this.setColorByObject(devUpColorButton, this.config.net.devices[devname].colors[1]);
+			
+			devEnableSwitch.set_active(this.config.net.devices[devname].enabled);
+			if(!this.config.net.devices[devname].enabled)
+			{
+				devDownLabel.set_sensitive(this.config.net.devices[devname].enabled);
+				devDownColorButton.set_sensitive(this.config.net.devices[devname].enabled);
+				devUpLabel.set_sensitive(this.config.net.devices[devname].enabled);
+				devUpColorButton.set_sensitive(this.config.net.devices[devname].enabled);
+			}
+			
+			//connect the widgets callbacks
+			devDownColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
+			devUpColorButton.connect("color-set", Lang.bind(this, function() {this.save();}));
+			devEnableSwitch.connect("notify::active", Lang.bind(this, function(myswitch) {
+					var isEnabled = myswitch.get_active();
+					var childrens = myswitch.get_parent().get_children();
+					
+					var startloc = childrens.indexOf(myswitch);
+					if(startloc >= 0)
+					{
+						for(var i = childrens.indexOf(myswitch)+1; i<childrens.length; i++)
+						{
+							childrens[i].set_sensitive(isEnabled);
+						}
+					}
+					this.save();
+				}));
+			this.netDownButtonList[counter] = devDownColorButton;
+			this.netUpButtonList[counter] = devUpColorButton;
+			this.netEnableSwitchList[counter] = devEnableSwitch;
+			counter++;
+			
+		}
+		//Disk Stuff
+		this.builder.get_object("diskEnableSwitch").set_active(this.config.disk.enabled);
+		this.builder.get_object("diskEnableSwitch").connect("notify::active", Lang.bind(this, function()
+        {
+			var isEnabled = this.builder.get_object("diskEnableSwitch").get_active();
+			this.builder.get_object("diskSettingsBox").set_sensitive(isEnabled);
+			this.save();
+        }));
+        this.builder.get_object("diskSettingsBox").set_sensitive(this.config.disk.enabled);
+        this.builder.get_object("diskAutoScaleSwitch").connect("notify::active", Lang.bind(this, function() {this.save();}));
+        this.builder.get_object("diskAutoScaleSwitch").set_active(this.config.disk.autoscale);
+        this.builder.get_object("diskWidthScale").set_value(this.config.disk.width);
+		this.builder.get_object("diskWidthScale").connect("value-changed", Lang.bind(this, function() {this.save();}));
+		
+		this.diskDevicesChoicesBox = this.builder.get_object("diskDevicesChoicesBox");
+        this.diskDownButtonList = [];
+        this.diskUpButtonList = [];
+        this.diskEnableSwitchList = [];
+        var counter=0;
+        
+        for(var devname in this.config.disk.devices)
+        {
+			//build the device sections
+			var currentdev_vbox = new Gtk.VBox();
+			var currentdev_hbox = new Gtk.HBox();
+			var devLabel = new Gtk.Label({label: devname})
+			devLabel.set_halign(1); //start
+			var devEnableLabel = new Gtk.Label({label: "Enable"})
+			devEnableLabel.set_halign(2); //end
+			var devEnableSwitch = new Gtk.Switch();
+			devEnableSwitch.set_halign(1); //start
+			devEnableSwitch.set_margin_left(10);
+			var devDownColorButton = new Gtk.ColorButton();
+			devDownColorButton.set_halign(1);
+			devDownColorButton.set_use_alpha(true);
+			var devDownLabel = new Gtk.Label({label: "Down"});
+			devDownLabel.set_halign(2);
+			
+			var devUpColorButton = new Gtk.ColorButton();
+			devUpColorButton.set_halign(1);
+			devUpColorButton.set_use_alpha(true);
+			var devUpLabel = new Gtk.Label({label: "Up"});
+			devUpLabel.set_halign(2);
+			
+			//add them to the appropriate containers.
+			currentdev_vbox.add(devLabel);
+			currentdev_hbox.add(devEnableLabel);
+			currentdev_hbox.add(devEnableSwitch);
+			currentdev_hbox.add(devDownLabel);
+			currentdev_hbox.add(devDownColorButton);
+			currentdev_hbox.add(devUpLabel);
+			currentdev_hbox.add(devUpColorButton);
+			currentdev_vbox.add(currentdev_hbox);
+			currentdev_vbox.add(new Gtk.Separator({marginTop: 5}));
+			//show the device only if the config oks it
+			if( this.config.disk.devices[devname].show )
+				this.diskDevicesChoicesBox.add(currentdev_vbox);
 			
 			//Configure the Widgets initial values
 			this.setColorByObject(devDownColorButton, this.config.disk.devices[devname].colors[0]);
@@ -352,7 +357,6 @@ Preferences.prototype = {
 			this.diskUpButtonList[counter] = devUpColorButton;
 			this.diskEnableSwitchList[counter] = devEnableSwitch;
 			counter++;
-			}
 		}
     },
 	
@@ -402,11 +406,13 @@ Preferences.prototype = {
 			}
 			//Disk Settings
 			this.config.disk.enabled = this.builder.get_object("diskEnableSwitch").get_active();
+			this.config.disk.autoscale = this.builder.get_object("diskAutoScaleSwitch").get_active();
 			this.config.disk.width = this.builder.get_object("diskWidthScale").get_value();
 			var devnum = 0;
 			for(var devname in this.config.disk.devices)
 			{
-				this.config.disk.devices[devname].enabled = this.diskEnableSwitchList[devnum].get_active();
+				if(typeof this.diskEnableSwitchList[devnum] != 'undefined')
+					this.config.disk.devices[devname].enabled = this.diskEnableSwitchList[devnum].get_active();
 				this.config.disk.devices[devname].colors[0] = this.getColorByObject(this.diskDownButtonList[devnum]);
 				this.config.disk.devices[devname].colors[1] = this.getColorByObject(this.diskUpButtonList[devnum]);
 				devnum++;

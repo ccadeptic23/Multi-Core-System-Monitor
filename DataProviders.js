@@ -31,7 +31,6 @@ MultiCpuDataProvider.prototype = {
 			
 			this.getData(); //initialize the values from the first readding
 	},
-
 	getData: function()
 	{
 		GTop.glibtop_get_cpu(this.gtop);
@@ -58,7 +57,6 @@ MultiCpuDataProvider.prototype = {
 						this.cpucount++;
 					}
 				}
-				//global.logError("Cpu count: "+this.cpucount.toString());
 			}
 
 		  // calculate ticks since last call
@@ -306,12 +304,10 @@ DiskDataProvider.prototype = {
 		var d = new Date();
 		var newUpdateTime = d.getTime();
 		var newReadings = this.getDiskRW();
-		//global.logError("newReadings");s
-		//for(var devname in newReadings)
-			//global.logError("\t"+devname+" r: "+newReadings[devname]["read"]+" w: "+newReadings[devname]["write"]);
+
 		var readingRatesList = [];
 		var secSinceLastUpdate = (newUpdateTime-this.lastupdatetime)/1000.0;
-		//global.logError("reading rates: "+this.currentReadingRates.toString());
+		
 		for(var devname in newReadings)
 		{
 			//global.logError("device: "+devname);
@@ -330,7 +326,7 @@ DiskDataProvider.prototype = {
 					this.currentReadingRates[devname]["read"] = currdevKBReadPerSec;
 					this.currentReadingRates[devname]["write"] = currdevKBWritePerSec;
 				}
-				//global.logError("device: "+devname+" last: "+currdevUp+" current:"+);
+				
 			}
 			else
 			{
@@ -354,10 +350,7 @@ DiskDataProvider.prototype = {
         for (var dname in this.mountedDisks)//var i=0; i < this.mountedDirList.length; i++)
         {
             GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDisks[dname] );
-            //global.logError("blocksize: "+this.gtopFSusage.block_size);
-            //global.logError("avail: "+this.gtopFSusage.bavail*this.gtopFSusage.block_size);
-            //global.logError("free: "+this.gtopFSusage.bfree*this.gtopFSusage.block_size);
-            //global.logError("");
+
             readings[dname] ={	read: this.gtopFSusage.read*this.gtopFSusage.block_size,
 												write: this.gtopFSusage.write*this.gtopFSusage.block_size};
         }
@@ -396,7 +389,6 @@ DiskDataProvider.prototype = {
 			var mountroot = mounts[i].get_root();
 			var mountdir = mountroot.get_parse_name();
 			
-			//print("mountroot: "+mountroot+" mountname: "+mountname+" on "+mountdir);
 			mountedDirs[mountname]=mountdir;
 		}
 		return mountedDirs;

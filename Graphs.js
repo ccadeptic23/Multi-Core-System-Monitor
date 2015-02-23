@@ -285,7 +285,7 @@ GraphLineChart.prototype = {
 			{
 				var emptypoints = [];
 				for(var j=0; j<numdatapoints; j++)
-					emptypoints[j]=-1;
+					emptypoints[j]=undefined;
 				newdatapointslist.unshift(emptypoints);
 			}
 		}
@@ -324,7 +324,6 @@ GraphLineChart.prototype = {
 			cr.setLineJoin(1); //rounded
 			for (var j = 1; j < this.dataPointsList.length; j++)
 			{
-
 				var maxvalue = this.minMaxValue;
 				if(this.maxvalue > this.minMaxValue)
 					maxvalue = this.maxvalue;
@@ -334,7 +333,7 @@ GraphLineChart.prototype = {
 				var x1 = this.pixelsPerDataPoint*(j-0.5) + this.pixelsPerDataPoint/4;
 				var x2 = this.pixelsPerDataPoint*(j)+ this.pixelsPerDataPoint/4;
 				
-				if(this.dataPointsList[j][i] == -1 || this.dataPointsList[j-1][i] == -1) //skip the beginning ones
+				if(this.dataPointsList[j][i] == undefined || this.dataPointsList[j-1][i] == undefined) //skip the beginning ones
 					continue;
 				
 				var y1 = height-Math.floor((height-1) * (this.dataPointsList[j-1][i]/(maxvalue)));
