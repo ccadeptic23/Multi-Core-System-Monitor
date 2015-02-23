@@ -11,25 +11,26 @@ function MultiCpuDataProvider() {
 MultiCpuDataProvider.prototype = {
 	
 	_init: function(){
+		this.isEnabled = true;
 		this.gtop = new GTop.glibtop_cpu();
-			this.cpucount=0;
-			
-			this.current = 0;
-			this.last = 0;
-			this.usage = 0;
-			this.last_total = 0; 
+		this.cpucount=0;
+		
+		this.current = 0;
+		this.last = 0;
+		this.usage = 0;
+		this.last_total = 0; 
 
-			this.cpulist_total = [];
-			this.cpulist_nice = [];
-			this.cpulist_idle = [];
-			this.cpulist_iowait = [];
-			
-			this.cpulist_sys = [];
-			this.cpulist_user = [];
-			
-			this.cpulist_usage = [];
-			
-			this.getData(); //initialize the values from the first readding
+		this.cpulist_total = [];
+		this.cpulist_nice = [];
+		this.cpulist_idle = [];
+		this.cpulist_iowait = [];
+		
+		this.cpulist_sys = [];
+		this.cpulist_user = [];
+		
+		this.cpulist_usage = [];
+		
+		this.getData(); //initialize the values from the first readding
 	},
 	getData: function()
 	{
@@ -97,6 +98,8 @@ MultiCpuDataProvider.prototype = {
 	
 	getTooltipString: function()
 	{
+		if(!this.isEnabled)
+			return "";
 		var tooltipstr = "cpu: ";
 		for(var i = 0; i < this.cpucount; i++)
 			tooltipstr += Math.round(100*this.cpulist_usage[i],2).toString() + "% ";
@@ -110,9 +113,10 @@ function MemDataProvider() {
 MemDataProvider.prototype = {
 	
 	_init: function(){
-			this.gtopMem = new GTop.glibtop_mem();
-			this.memusage = 0;
-			this.memInfo = [0,0,0,0];
+		this.isEnabled = true;
+		this.gtopMem = new GTop.glibtop_mem();
+		this.memusage = 0;
+		this.memInfo = [0,0,0,0];
 	},
 
 	getData: function()
@@ -143,6 +147,8 @@ MemDataProvider.prototype = {
 	
 	getTooltipString: function()
 	{
+		if(!this.isEnabled)
+			return "";
 		var tooltipstr = "------mem------- \n";
 		tooltipstr +="usedup:\t" + Math.round(100*this.memInfo[0]).toString() + "%\n";
 		tooltipstr +="cached:\t" + Math.round(100*this.memInfo[1]).toString() + "%\n";
@@ -158,9 +164,10 @@ function SwapDataProvider() {
 SwapDataProvider.prototype = {
 	
 	_init: function(){
-			this.gtopSwap = new GTop.glibtop_swap();
-			this.swapusage = 0;
-			this.swapInfo = [0];
+		this.isEnabled = true;
+		this.gtopSwap = new GTop.glibtop_swap();
+		this.swapusage = 0;
+		this.swapInfo = [0];
 	},
 	getData: function()
 	{
@@ -176,6 +183,8 @@ SwapDataProvider.prototype = {
 	getName: function() { return "SWAP"; }, //Name to be displayed for this data provider
 	getTooltipString: function()
 	{
+		if(!this.isEnabled)
+			return "";
 		var tooltipstr = "------swap------- \n";
 		tooltipstr +="swap:\t" + (Math.round(10000*this.swapInfo[0])/100).toString() + "%\n";
 		return tooltipstr;
@@ -187,16 +196,20 @@ function NetDataProvider() {
 }
 NetDataProvider.prototype = {
     _init: function () {
+		this.isEnabled = true;
 		this._client = NMClient.Client.new();
         this.gtop = new GTop.glibtop_netload();
-        let dev = this._client.get_devices();
+        var dev = this._client.get_devices();
         this.devices = [];
         this.disabledDevices = [];
         this.currentReadingRates = [];
-        for (let i = 0; i < dev.length; i++)
+        if(dev) //fix for when Network Manager is not being used thanks "volmonk"
         {
-            this.devices[i] = dev[i].get_iface();
-            this.currentReadingRates[dev[i].get_iface()] = { down: 0, up: 0};
+			for (let i = 0; i < dev.length; i++)
+			{
+				this.devices[i] = dev[i].get_iface();
+				this.currentReadingRates[dev[i].get_iface()] = { down: 0, up: 0};
+			}
 		}
 		this.devices.sort(); //sort these really quick for displaying
         
@@ -261,6 +274,8 @@ NetDataProvider.prototype = {
 	},
     getTooltipString: function()
 	{
+		if(!this.isEnabled)
+			return "";
 		var tooltipstr = "-------net-------\n";
 		for(var i =0; i < this.devices.length; i++)
 		{
@@ -280,6 +295,7 @@ DiskDataProvider.prototype = {
 	
 	_init: function()
 	{
+		this.isEnabled = true;
 		this.disabledDevices = [];
 		this.gtopFSusage = new GTop.glibtop_fsusage();
 		//var volumeMonitor = Gio.VolumeMonitor.get();
@@ -300,6 +316,8 @@ DiskDataProvider.prototype = {
 	
     getData: function()
     {
+		if(!this.isEnabled)
+			return [];
 		this.mountedDisks = this.getDiskDevices();
 		var d = new Date();
 		var newUpdateTime = d.getTime();
@@ -365,8 +383,10 @@ DiskDataProvider.prototype = {
 	},
 	getTooltipString: function()
 	{
+		if(!this.isEnabled)
+			return "";
 		var tooltipstr = "------disk------- \n";
-		for (var dname in this.mountedDisks)//var i=0; i < this.mountedDirList.length; i++)
+		for (var dname in this.mountedDisks)
         {
 			if(dname in this.currentReadingRates)
 			{
@@ -377,23 +397,21 @@ DiskDataProvider.prototype = {
 	},
 	getDiskDevices: function()
 	{
-{
 		var volumeMonitor = Gio.VolumeMonitor.get();
-		var mounts = volumeMonitor.get_mounts();
-		var mountedDirs = {};
-		mountedDirs["/"] = "/"; //always here
+		var vols = volumeMonitor.get_volumes();
+		var volDirs = {};
+		volDirs["/"] = "/"; //always here
 		
-		for(var i = 0; i < mounts.length; i++)
+		for(var i = 0; i < vols.length; i++)
 		{
-			var mountname = mounts[i].get_name();
-			var mountroot = mounts[i].get_root();
-			var mountdir = mountroot.get_parse_name();
+			var dname = vols[i].get_name();
+	
+			volDirs[dname] = vols[i].get_identifier(Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 			
-			mountedDirs[mountname]=mountdir;
 		}
-		return mountedDirs;
-}
+		return volDirs;
 	}
+
 };
 
 

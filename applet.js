@@ -178,11 +178,17 @@ MyApplet.prototype = {
 			this.diskGraph.setAutoScale(this.configSettings.isDiskAutoScaled());
 			
 			//update data from providers.. a bit convoluted i may change later
+			
+			this.multiCpuProvider.isEnabled = this.configSettings.isCPUEnabled()
+			this.memProvider.isEnabled = this.configSettings.isMEMEnabled();
+			this.netProvider.isEnabled = this.configSettings.isNETEnabled();
+			this.diskProvider.isEnabled = this.configSettings.isDiskEnabled();
+			
 			for (var i = 0; i < this.graphs.length; i++)
 			{
 				this.graphs[i].refreshData();
 			}
-	
+			
 			//global.logError(this.diskProvider.getData());
 			
 			this.graphArea.queue_repaint();

@@ -219,7 +219,8 @@ GraphLineChart.prototype = {
 
     },
 	
-    refreshData: function() {
+    refreshData: function()
+    {
 		
         let datapoints = this.provider.getData();
         if(datapoints.length==0)
