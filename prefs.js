@@ -300,13 +300,13 @@ Preferences.prototype = {
 			var devDownColorButton = new Gtk.ColorButton();
 			devDownColorButton.set_halign(1);
 			devDownColorButton.set_use_alpha(true);
-			var devDownLabel = new Gtk.Label({label: "Down"});
+			var devDownLabel = new Gtk.Label({label: "Read"});
 			devDownLabel.set_halign(2);
 			
 			var devUpColorButton = new Gtk.ColorButton();
 			devUpColorButton.set_halign(1);
 			devUpColorButton.set_use_alpha(true);
-			var devUpLabel = new Gtk.Label({label: "Up"});
+			var devUpLabel = new Gtk.Label({label: "Write"});
 			devUpLabel.set_halign(2);
 			
 			//add them to the appropriate containers.

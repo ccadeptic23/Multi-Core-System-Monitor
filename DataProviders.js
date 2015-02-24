@@ -257,8 +257,11 @@ NetDataProvider.prototype = {
         
         for (var i=0; i < this.devices.length; i++)
         {
-            GTop.glibtop.get_netload(this.gtop, this.devices[i]);
-            readings[this.devices[i]] = { down: this.gtop.bytes_in, up: this.gtop.bytes_out};
+			if(this.disabledDevices.indexOf(this.devices[i]) == -1)
+			{
+				GTop.glibtop.get_netload(this.gtop, this.devices[i]);
+				readings[this.devices[i]] = { down: this.gtop.bytes_in, up: this.gtop.bytes_out};
+			}
         }
 
         return readings;
@@ -318,7 +321,7 @@ DiskDataProvider.prototype = {
     {
 		if(!this.isEnabled)
 			return [];
-		this.mountedDisks = this.getDiskDevices();
+		
 		var d = new Date();
 		var newUpdateTime = d.getTime();
 		var newReadings = this.getDiskRW();
@@ -326,29 +329,29 @@ DiskDataProvider.prototype = {
 		var readingRatesList = [];
 		var secSinceLastUpdate = (newUpdateTime-this.lastupdatetime)/1000.0;
 		
-		for(var devname in newReadings)
+		for(var dname in newReadings)
 		{
-			//global.logError("device: "+devname);
 			var currdevRead = 0;
 			var currdevWrite = 0;
-			if(devname in this.currentReadings) //if we have old values (not just plugged in)
+			if(dname in this.currentReadings) //if we have old values (not just plugged in)
 			{
-				currdevRead = this.currentReadings[devname]["read"];
-				currdevWrite = this.currentReadings[devname]["write"];
-				var currdevKBReadPerSec = Math.round(((newReadings[devname]["read"] - currdevRead)/1048576/secSinceLastUpdate));
-				var currdevKBWritePerSec = Math.round(((newReadings[devname]["write"] - currdevWrite)/1048576/secSinceLastUpdate));
+				currdevRead = this.currentReadings[dname]["read"];
+				currdevWrite = this.currentReadings[dname]["write"];
+				var currdevMBReadPerSec = Math.round(((newReadings[dname]["read"] - currdevRead)/1048576/secSinceLastUpdate));
+				var currdevMBWritePerSec = Math.round(((newReadings[dname]["write"] - currdevWrite)/1048576/secSinceLastUpdate));
 			
-				readingRatesList.push(currdevKBReadPerSec);
-				readingRatesList.push(currdevKBWritePerSec);
-				if(devname in this.currentReadingRates) {
-					this.currentReadingRates[devname]["read"] = currdevKBReadPerSec;
-					this.currentReadingRates[devname]["write"] = currdevKBWritePerSec;
+				readingRatesList.push(currdevMBReadPerSec);
+				readingRatesList.push(currdevMBWritePerSec);
+				if(dname in this.currentReadingRates)
+				{
+					this.currentReadingRates[dname]["read"] = currdevMBReadPerSec;
+					this.currentReadingRates[dname]["write"] = currdevMBWritePerSec;
+					//global.logError(dname+","+currdevMBReadPerSec+","+currdevMBWritePerSec);
 				}
-				
 			}
 			else
 			{
-				global.logError("device: "+devname);
+				global.logError("device: "+dname);
 			}
 		}
 		
@@ -361,19 +364,20 @@ DiskDataProvider.prototype = {
     getName: function() { return "DISK"; },
     
     getDiskRW: function() {
-        let down = 0;
-        let up = 0;
+		
         var readings = [];
         
-        for (var dname in this.mountedDisks)//var i=0; i < this.mountedDirList.length; i++)
+        for (var dname in this.mountedDisks)
         {
-            GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDisks[dname] );
-
-            readings[dname] ={	read: this.gtopFSusage.read*this.gtopFSusage.block_size,
-												write: this.gtopFSusage.write*this.gtopFSusage.block_size};
+			if(this.disabledDevices.indexOf(dname) == -1)
+			{
+				GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDisks[dname] );
+				var r = this.gtopFSusage.read*this.gtopFSusage.block_size;
+				var w = this.gtopFSusage.write*this.gtopFSusage.block_size;
+				readings[dname] = {	read: r, write: w };
+				
+			}
         }
-        //for(var devname in readings)
-			//global.logError("r: "+readings[devname]["read"]+" w: "+readings[devname]["write"]);
 			
         return readings;
     },
@@ -405,9 +409,12 @@ DiskDataProvider.prototype = {
 		for(var i = 0; i < vols.length; i++)
 		{
 			var dname = vols[i].get_name();
-	
-			volDirs[dname] = vols[i].get_identifier(Gio.VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-			
+			var mnt = vols[i].get_mount();
+			if(mnt!=null)
+			{
+				var mntroot = mnt.get_root();
+				volDirs[dname] = mntroot.get_path();
+			}
 		}
 		return volDirs;
 	}

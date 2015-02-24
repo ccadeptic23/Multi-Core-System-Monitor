@@ -222,9 +222,15 @@ GraphLineChart.prototype = {
     refreshData: function()
     {
 		
-        let datapoints = this.provider.getData();
+        var datapoints = this.provider.getData();
         if(datapoints.length==0)
 			return true;
+		for(var i=0;i<datapoints.length; i++)
+		{
+			if(datapoints[i] > 0) //at 0 log is -inf
+				datapoints[i] = Math.log(datapoints[i]);
+		}
+			
         if(this.maxvalueloc == null) //initialize
         {
 			this.resizeDataPointsList(this.dataPointsListSize, datapoints.length);
@@ -246,7 +252,7 @@ GraphLineChart.prototype = {
 		
         if(this.autoScale && (this.maxvalueloc < 0)) //find a new max we lost the old one
         {
-			global.logError("Hello"+this.autoScale);
+			
 			this.maxvalue = -1;
 			for( var i=0;i<this.dataPointsList.length; i++)
 			{
