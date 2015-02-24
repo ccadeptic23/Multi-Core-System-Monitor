@@ -224,26 +224,22 @@ NetDataProvider.prototype = {
 		var newReadings = this.getNetLoad();
 		var readingNetRatesList = [];
 		var secSinceLastUpdate = (newUpdateTime-this.lastupdatetime)/1000;
-		if((newUpdateTime-this.lastupdatetime) > 1000 || true)
+		
+		for(var devname in newReadings)
 		{
-			for(var devname in newReadings)
-			{
-				var currdevKBDownPerSec = Math.round( ( (newReadings[devname]["down"] - this.currentReadings[devname]["down"]) /secSinceLastUpdate)/1024);
-				var currdevKBUpPerSec = Math.round( ( (newReadings[devname]["up"] - this.currentReadings[devname]["up"]) /secSinceLastUpdate)/1024);
-				
-				this.currentReadingRates[devname]["down"] = currdevKBDownPerSec;
-				this.currentReadingRates[devname]["up"] = currdevKBUpPerSec;
-				
-				//if(this.disabledDevices.indexOf(devname) == -1) //add if the device is not disabled
-				//{
-					readingNetRatesList.push(this.currentReadingRates[devname]["down"]);
-					readingNetRatesList.push(this.currentReadingRates[devname]["up"]);
-				//}
-			}
+			var currdevKBDownPerSec = Math.round( ( (newReadings[devname]["down"] - this.currentReadings[devname]["down"]) /secSinceLastUpdate)/1024);
+			var currdevKBUpPerSec = Math.round( ( (newReadings[devname]["up"] - this.currentReadings[devname]["up"]) /secSinceLastUpdate)/1024);
 			
-			this.currentReadings = newReadings;
-			this.lastupdatetime = newUpdateTime;
+			this.currentReadingRates[devname]["down"] = currdevKBDownPerSec;
+			this.currentReadingRates[devname]["up"] = currdevKBUpPerSec;
+			
+			readingNetRatesList.push(this.currentReadingRates[devname]["down"]);
+			readingNetRatesList.push(this.currentReadingRates[devname]["up"]);
 		}
+		
+		this.currentReadings = newReadings;
+		this.lastupdatetime = newUpdateTime;
+		
 		return readingNetRatesList;
 
     },
@@ -262,6 +258,8 @@ NetDataProvider.prototype = {
 				GTop.glibtop.get_netload(this.gtop, this.devices[i]);
 				readings[this.devices[i]] = { down: this.gtop.bytes_in, up: this.gtop.bytes_out};
 			}
+			else
+				readings[this.devices[i]] = { down: 0, up: 0};
         }
 
         return readings;
@@ -374,9 +372,10 @@ DiskDataProvider.prototype = {
 				GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDisks[dname] );
 				var r = this.gtopFSusage.read*this.gtopFSusage.block_size;
 				var w = this.gtopFSusage.write*this.gtopFSusage.block_size;
-				readings[dname] = {	read: r, write: w };
-				
+				readings[dname] = {	read: r, write: w };	
 			}
+			else
+				readings[dname] = {	read: 0, write: 0 };	
         }
 			
         return readings;
