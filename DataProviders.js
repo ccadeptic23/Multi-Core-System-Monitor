@@ -227,14 +227,17 @@ NetDataProvider.prototype = {
 		
 		for(var devname in newReadings)
 		{
-			var currdevKBDownPerSec = Math.round( ( (newReadings[devname]["down"] - this.currentReadings[devname]["down"]) /secSinceLastUpdate)/1024);
-			var currdevKBUpPerSec = Math.round( ( (newReadings[devname]["up"] - this.currentReadings[devname]["up"]) /secSinceLastUpdate)/1024);
-			
-			this.currentReadingRates[devname]["down"] = currdevKBDownPerSec;
-			this.currentReadingRates[devname]["up"] = currdevKBUpPerSec;
-			
-			readingNetRatesList.push(this.currentReadingRates[devname]["down"]);
-			readingNetRatesList.push(this.currentReadingRates[devname]["up"]);
+			if(devname in this.currentReadings)
+			{
+				var currdevKBDownPerSec = Math.round( ( (newReadings[devname]["down"] - this.currentReadings[devname]["down"]) /secSinceLastUpdate)/1024);
+				var currdevKBUpPerSec = Math.round( ( (newReadings[devname]["up"] - this.currentReadings[devname]["up"]) /secSinceLastUpdate)/1024);
+				
+				this.currentReadingRates[devname]["down"] = currdevKBDownPerSec;
+				this.currentReadingRates[devname]["up"] = currdevKBUpPerSec;
+				
+				readingNetRatesList.push(this.currentReadingRates[devname]["down"]);
+				readingNetRatesList.push(this.currentReadingRates[devname]["up"]);
+			}
 		}
 		
 		this.currentReadings = newReadings;
@@ -258,8 +261,8 @@ NetDataProvider.prototype = {
 				GTop.glibtop.get_netload(this.gtop, this.devices[i]);
 				readings[this.devices[i]] = { down: this.gtop.bytes_in, up: this.gtop.bytes_out};
 			}
-			else
-				readings[this.devices[i]] = { down: 0, up: 0};
+			//else
+			//	readings[this.devices[i]] = { down: 0, up: 0};
         }
 
         return readings;
@@ -374,8 +377,8 @@ DiskDataProvider.prototype = {
 				var w = this.gtopFSusage.write*this.gtopFSusage.block_size;
 				readings[dname] = {	read: r, write: w };	
 			}
-			else
-				readings[dname] = {	read: 0, write: 0 };	
+			//else
+			//	readings[dname] = {	read: 0, write: 0 };	
         }
 			
         return readings;

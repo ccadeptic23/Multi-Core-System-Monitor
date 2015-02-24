@@ -226,7 +226,7 @@ ConfigSettings.prototype = {
 							},
 							"net": {
 								"enabled": true,
-								"autoscale": false,
+								"autoscale": true,
 								"width": 40,
 								"devices":{
 									"eth0": {"enabled": true,show:true,"colors": [[1,1,1,0.8],[0,0,0,0.6]]},
