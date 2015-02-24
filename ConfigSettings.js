@@ -233,7 +233,7 @@ ConfigSettings.prototype = {
 									},
 							},
 							"disk": {
-								"enabled": false,
+								"enabled": true,
 								"autoscale": true,
 								"width": 40,
 								"devices":{

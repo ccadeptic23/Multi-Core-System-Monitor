@@ -196,14 +196,15 @@ Preferences.prototype = {
 			var currentdev_vbox = new Gtk.VBox();
 			var currentdev_hbox = new Gtk.HBox();
 			var devLabel = new Gtk.Label({label: devname})
-			devLabel.set_halign(1); //start
+			devLabel.set_halign(Gtk.Align.START); //start
 			var devEnableLabel = new Gtk.Label({label: "Enable"})
-			devEnableLabel.set_halign(2); //end
+			devEnableLabel.set_halign(Gtk.Align.END); //end
 			var devEnableSwitch = new Gtk.Switch();
-			devEnableSwitch.set_halign(1); //start
+			devEnableSwitch.set_halign(Gtk.Align.START); //start
+			devEnableSwitch.set_valign(Gtk.Align.CENTER);
 			devEnableSwitch.set_margin_left(10);
 			var devDownColorButton = new Gtk.ColorButton();
-			devDownColorButton.set_halign(1);
+			devDownColorButton.set_halign(Gtk.Align.START);
 			devDownColorButton.set_use_alpha(true);
 			var devDownLabel = new Gtk.Label({label: "Down"});
 			devDownLabel.set_halign(2);
@@ -293,10 +294,13 @@ Preferences.prototype = {
 			var devLabel = new Gtk.Label({label: devname})
 			devLabel.set_halign(1); //start
 			var devEnableLabel = new Gtk.Label({label: "Enable"})
-			devEnableLabel.set_halign(2); //end
+			devEnableLabel.set_halign(Gtk.Align.END); //end
 			var devEnableSwitch = new Gtk.Switch();
-			devEnableSwitch.set_halign(1); //start
+			devEnableSwitch.set_halign(Gtk.Align.START); //start
+			devEnableSwitch.set_valign(Gtk.Align.CENTER);
 			devEnableSwitch.set_margin_left(10);
+			devEnableSwitch.set_vexpand(false);
+			devEnableSwitch.set_hexpand(false);
 			var devDownColorButton = new Gtk.ColorButton();
 			devDownColorButton.set_halign(1);
 			devDownColorButton.set_use_alpha(true);
