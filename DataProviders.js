@@ -302,20 +302,15 @@ DiskDataProvider.prototype = {
 		this.isEnabled = true;
 		this.disabledDevices = [];
 		this.gtopFSusage = new GTop.glibtop_fsusage();
-		//var volumeMonitor = Gio.VolumeMonitor.get();
-		//let mounts = volumeMonitor.get_mounts();
-		this.mountedDisks = this.getDiskDevices();
 		
 		var d = new Date();
 		this.lastupdatetime = d.getTime();
 		this.currentReadings = this.getDiskRW();
 		
 		this.currentReadingRates = [];
-        for (var dname in this.mountedDisks)//let i = 0; i < this.mountedDirList.length; i++)
-        {
-            this.currentReadingRates[dname] = { read: 0, write: 0};
-		}
-		
+		var mountedDisks = this.getDiskDevices();
+        for (var dname in mountedDisks)
+			this.currentReadingRates[dname] = {read:0, write:0};
 	},
 	
     getData: function()
@@ -343,16 +338,12 @@ DiskDataProvider.prototype = {
 			
 				readingRatesList.push(currdevMBReadPerSec);
 				readingRatesList.push(currdevMBWritePerSec);
-				if(dname in this.currentReadingRates)
-				{
-					this.currentReadingRates[dname]["read"] = currdevMBReadPerSec;
-					this.currentReadingRates[dname]["write"] = currdevMBWritePerSec;
-					//global.logError(dname+","+currdevMBReadPerSec+","+currdevMBWritePerSec);
-				}
+
+				this.currentReadingRates[dname] = {read: currdevMBReadPerSec, write: currdevMBWritePerSec};
 			}
 			else
 			{
-				global.logError("device: "+dname);
+				global.logError("new device: "+dname);
 			}
 		}
 		
@@ -365,20 +356,15 @@ DiskDataProvider.prototype = {
     getName: function() { return "DISK"; },
     
     getDiskRW: function() {
-		
+		var mountedDisks = this.getDiskDevices();
         var readings = [];
         
-        for (var dname in this.mountedDisks)
+        for (var dname in mountedDisks)
         {
-			if(this.disabledDevices.indexOf(dname) == -1)
-			{
-				GTop.glibtop.get_fsusage(this.gtopFSusage, this.mountedDisks[dname] );
-				var r = this.gtopFSusage.read*this.gtopFSusage.block_size;
-				var w = this.gtopFSusage.write*this.gtopFSusage.block_size;
-				readings[dname] = {	read: r, write: w };	
-			}
-			//else
-			//	readings[dname] = {	read: 0, write: 0 };	
+			GTop.glibtop.get_fsusage(this.gtopFSusage, mountedDisks[dname] );
+			var r = this.gtopFSusage.read*this.gtopFSusage.block_size; //amt read in bytes
+			var w = this.gtopFSusage.write*this.gtopFSusage.block_size; //amt written in bytes
+			readings[dname] = {	read: r, write: w };	
         }
 			
         return readings;
@@ -391,13 +377,10 @@ DiskDataProvider.prototype = {
 	{
 		if(!this.isEnabled)
 			return "";
-		var tooltipstr = "------disk------- \n";
-		for (var dname in this.mountedDisks)
+		var tooltipstr = "------disk------- \n";		
+		for (var dname in this.currentReadingRates)
         {
-			if(dname in this.currentReadingRates)
-			{
-				tooltipstr +=dname+": R: "+this.currentReadingRates[dname]["read"]+" "+": W: "+this.currentReadingRates[dname]["write"]+" (MiB/s)\n";
-			}
+			tooltipstr +=dname+": R: "+this.currentReadingRates[dname]["read"]+" "+": W: "+this.currentReadingRates[dname]["write"]+" (MiB/s)\n";
 		}
 		return tooltipstr;
 	},
@@ -415,7 +398,8 @@ DiskDataProvider.prototype = {
 			if(mnt!=null)
 			{
 				var mntroot = mnt.get_root();
-				volDirs[dname] = mntroot.get_path();
+				if(this.disabledDevices.indexOf(dname) == -1) //device is enabled
+					volDirs[dname] = mntroot.get_path();
 			}
 		}
 		return volDirs;

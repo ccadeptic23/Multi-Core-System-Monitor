@@ -237,7 +237,7 @@ ConfigSettings.prototype = {
 								"autoscale": true,
 								"width": 40,
 								"devices":{
-									"/": { "enabled": true, show:true,"colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
+									"/": { "enabled": true, show:true,"colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]] },
 									},
 							}
 						};
@@ -248,8 +248,7 @@ ConfigSettings.prototype = {
             var prefsContent = Cinnamon.get_file_contents_utf8_sync(prefsFile.get_path());
             this._prefs =  JSON.parse(prefsContent);
             return true;
-        } 
-        catch (e) {
+        } catch (e) {
             global.logError('Failed to load prefs.json: ' + e + " Attempting to create it.");
 			this.saveSettings(); //We dont have a config file so we attempt to make one for next time
             return false;
