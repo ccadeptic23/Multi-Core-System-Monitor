@@ -93,7 +93,7 @@ MyApplet.prototype = {
 			this.configSettings.adjustDiskDevices(this.diskProvider.getDiskDevices());
 			this.diskProvider.setDisabledDevices(this.configSettings.getDiskDisabledDevices());
 			
-			this.configSettings.adjustNetInterfaces(this.netProvider.getNetInterfaces());
+			this.configSettings.adjustNetInterfaces(this.netProvider.getNetDevices());
 			this.netProvider.setDisabledInterfaces(this.configSettings.getNETDisabledDevices());
 			
 			this.multiCpuGraph = new Graphs.GraphVBars(this.graphArea, this.multiCpuProvider);

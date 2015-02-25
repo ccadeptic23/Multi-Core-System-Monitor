@@ -197,21 +197,17 @@ function NetDataProvider() {
 NetDataProvider.prototype = {
     _init: function () {
 		this.isEnabled = true;
-		this._client = NMClient.Client.new();
+		
         this.gtop = new GTop.glibtop_netload();
-        var dev = this._client.get_devices();
-        this.devices = [];
         this.disabledDevices = [];
+        
         this.currentReadingRates = [];
-        if(dev) //fix for when Network Manager is not being used thanks "volmonk"
-        {
-			for (let i = 0; i < dev.length; i++)
-			{
-				this.devices[i] = dev[i].get_iface();
-				this.currentReadingRates[dev[i].get_iface()] = { down: 0, up: 0};
-			}
+
+        var devices = this.getNetDevices();
+		for(var dname in devices)
+		{
+			this.currentReadingRates[dname] = { down: 0, up: 0};
 		}
-		this.devices.sort(); //sort these really quick for displaying
         
         var d = new Date();
         this.lastupdatetime = d.getTime();
@@ -225,18 +221,22 @@ NetDataProvider.prototype = {
 		var readingNetRatesList = [];
 		var secSinceLastUpdate = (newUpdateTime-this.lastupdatetime)/1000;
 		
-		for(var devname in newReadings)
+		for(var dname in newReadings)
 		{
-			if(devname in this.currentReadings)
+			if(dname in this.currentReadings)
 			{
-				var currdevKBDownPerSec = Math.round( ( (newReadings[devname]["down"] - this.currentReadings[devname]["down"]) /secSinceLastUpdate)/1024);
-				var currdevKBUpPerSec = Math.round( ( (newReadings[devname]["up"] - this.currentReadings[devname]["up"]) /secSinceLastUpdate)/1024);
+				var currdevKBDownPerSec = Math.round( ( (newReadings[dname]["down"] - this.currentReadings[dname]["down"]) /secSinceLastUpdate)/1024);
+				var currdevKBUpPerSec = Math.round( ( (newReadings[dname]["up"] - this.currentReadings[dname]["up"]) /secSinceLastUpdate)/1024);
 				
-				this.currentReadingRates[devname]["down"] = currdevKBDownPerSec;
-				this.currentReadingRates[devname]["up"] = currdevKBUpPerSec;
+				this.currentReadingRates[dname]["down"] = currdevKBDownPerSec;
+				this.currentReadingRates[dname]["up"] = currdevKBUpPerSec;
 				
-				readingNetRatesList.push(this.currentReadingRates[devname]["down"]);
-				readingNetRatesList.push(this.currentReadingRates[devname]["up"]);
+				readingNetRatesList.push(this.currentReadingRates[dname]["down"]);
+				readingNetRatesList.push(this.currentReadingRates[dname]["up"]);
+			}
+			else
+			{
+				global.logError("new device: "+dname);
 			}
 		}
 		
@@ -253,17 +253,12 @@ NetDataProvider.prototype = {
         let down = 0;
         let up = 0;
         var readings = [];
-        
-        for (var i=0; i < this.devices.length; i++)
+        var devices = this.getNetDevices();
+        for( var dname in devices )
         {
-			if(this.disabledDevices.indexOf(this.devices[i]) == -1)
-			{
-				GTop.glibtop.get_netload(this.gtop, this.devices[i]);
-				readings[this.devices[i]] = { down: this.gtop.bytes_in, up: this.gtop.bytes_out};
-			}
-			//else
-			//	readings[this.devices[i]] = { down: 0, up: 0};
-        }
+			GTop.glibtop.get_netload(this.gtop, dname);
+			readings[dname] = { down: this.gtop.bytes_in, up: this.gtop.bytes_out};
+		}
 
         return readings;
 
@@ -272,20 +267,35 @@ NetDataProvider.prototype = {
     {
 		this.disabledDevices = 	disableddeviceslist;
 	},
-    getNetInterfaces: function()
-    {
-		return this.devices;
+	getNetDevices: function()
+	{
+		var nmclient = NMClient.Client.new();
+        
+        var devs = nmclient.get_devices();
+        var devices = [];
+        if(devs) //fix for when Network Manager is not being used thanks "volmonk"
+        {
+			for(var i = 0; i < devs.length; i++)
+			{
+				var dname = devs[i].get_iface();
+				if(this.disabledDevices.indexOf(dname) == -1)
+					devices[dname]=dname;//.push(dname);
+			}
+		}
+		devices.sort(); //sort these really quick for displaying
+		return devices;
 	},
     getTooltipString: function()
 	{
 		if(!this.isEnabled)
 			return "";
+		var devices = this.getNetDevices();
 		var tooltipstr = "-------net-------\n";
-		for(var i =0; i < this.devices.length; i++)
+		for(var dname in devices)
 		{
-			if(this.disabledDevices.indexOf(this.devices[i]) == -1) //add if the device is not disabled
+			if(this.disabledDevices.indexOf(dname) == -1) //add if the device is not disabled
 			{
-				tooltipstr += this.devices[i]+": D: "+this.currentReadingRates[this.devices[i]]["down"]+" U: "+this.currentReadingRates[this.devices[i]]["up"]+ " (KiB/s)\n";
+				tooltipstr += dname+": D: "+this.currentReadingRates[dname]["down"]+" U: "+this.currentReadingRates[dname]["up"]+ " (KiB/s)\n";
 			}
 		}
 		return tooltipstr;
@@ -402,6 +412,7 @@ DiskDataProvider.prototype = {
 					volDirs[dname] = mntroot.get_path();
 			}
 		}
+		
 		return volDirs;
 	}
 

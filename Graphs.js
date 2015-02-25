@@ -313,7 +313,9 @@ GraphLineChart.prototype = {
         cr.fill();
         
         //data
-        var numLinesOnChart = this.dataPointsList[0].length; //cheesy but it works
+        var numLinesOnChart = 0;
+        if(this.dataPointsList.length > 0)
+			numLinesOnChart = this.dataPointsList[0].length; //cheesy but it works
         for (var i = 0; i < numLinesOnChart; i++)
         {
             var lastval = 0;
