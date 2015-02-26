@@ -219,6 +219,7 @@ NetDataProvider.prototype = {
 		var newUpdateTime = d.getTime();
 		var newReadings = this.getNetLoad();
 		var readingNetRatesList = [];
+		this.currentReadingRates =[]; //reset so old devs dont appear in datastruct
 		var secSinceLastUpdate = (newUpdateTime-this.lastupdatetime)/1000;
 		
 		for(var dname in newReadings)
@@ -228,11 +229,10 @@ NetDataProvider.prototype = {
 				var currdevKBDownPerSec = Math.round( ( (newReadings[dname]["down"] - this.currentReadings[dname]["down"]) /secSinceLastUpdate)/1024);
 				var currdevKBUpPerSec = Math.round( ( (newReadings[dname]["up"] - this.currentReadings[dname]["up"]) /secSinceLastUpdate)/1024);
 				
-				this.currentReadingRates[dname]["down"] = currdevKBDownPerSec;
-				this.currentReadingRates[dname]["up"] = currdevKBUpPerSec;
+				this.currentReadingRates[dname]={down: currdevKBDownPerSec, up: currdevKBUpPerSec};
 				
-				readingNetRatesList.push(this.currentReadingRates[dname]["down"]);
-				readingNetRatesList.push(this.currentReadingRates[dname]["up"]);
+				readingNetRatesList.push(currdevKBDownPerSec);
+				readingNetRatesList.push(currdevKBUpPerSec);
 			}
 			else
 			{
@@ -289,14 +289,11 @@ NetDataProvider.prototype = {
 	{
 		if(!this.isEnabled)
 			return "";
-		var devices = this.getNetDevices();
+		
 		var tooltipstr = "-------net-------\n";
-		for(var dname in devices)
+		for (var dname in this.currentReadingRates)
 		{
-			if(this.disabledDevices.indexOf(dname) == -1) //add if the device is not disabled
-			{
-				tooltipstr += dname+": D: "+this.currentReadingRates[dname]["down"]+" U: "+this.currentReadingRates[dname]["up"]+ " (KiB/s)\n";
-			}
+			tooltipstr += dname+": D: "+this.currentReadingRates[dname]["down"]+" U: "+this.currentReadingRates[dname]["up"]+ " (KiB/s)\n";
 		}
 		return tooltipstr;
 	}
@@ -333,6 +330,7 @@ DiskDataProvider.prototype = {
 		var newReadings = this.getDiskRW();
 
 		var readingRatesList = [];
+		this.currentReadingRates =[]; //reset so old devs dont appear in datastruct
 		var secSinceLastUpdate = (newUpdateTime-this.lastupdatetime)/1000.0;
 		
 		for(var dname in newReadings)
@@ -387,6 +385,7 @@ DiskDataProvider.prototype = {
 	{
 		if(!this.isEnabled)
 			return "";
+			
 		var tooltipstr = "------disk------- \n";		
 		for (var dname in this.currentReadingRates)
         {

@@ -212,8 +212,9 @@ GraphLineChart.prototype = {
         this.dataPointsList = [];
 
         this.autoScale = false;
-        this.scale = 1;
-        this.maxvalue = -1;
+        this.logScale = false;
+        this.scale = 1.0;
+        this.maxvalue = 1.0;
         this.maxvalueloc = null;
         this.minMaxValue = 1.0;
 
@@ -221,15 +222,9 @@ GraphLineChart.prototype = {
 	
     refreshData: function()
     {
-		
         var datapoints = this.provider.getData();
         if(datapoints.length==0)
 			return true;
-		for(var i=0;i<datapoints.length; i++)
-		{
-			if(datapoints[i] > 0) //at 0 log is -inf
-				datapoints[i] = Math.log(datapoints[i]);
-		}
 			
         if(this.maxvalueloc == null) //initialize
         {
@@ -243,35 +238,36 @@ GraphLineChart.prototype = {
         //double check what we just added isnt greater than our max (for all lines)
         for(var i=0;i<datapoints.length; i++)
 		{
-			if(datapoints[i] > this.maxvalue)
+			if(datapoints[i] > this.maxvalue && datapoints[i] > this.minMaxValue)
 			{
 				this.maxvalue = datapoints[i];
 				this.maxvalueloc = this.dataPointsListSize-1;
+				this.scale = 1.0/this.maxvalue;
 			}
 		}
 		
         if(this.autoScale && (this.maxvalueloc < 0)) //find a new max we lost the old one
         {
-			
-			this.maxvalue = -1;
+			this.maxvalue = 1.0;
 			for( var i=0;i<this.dataPointsList.length; i++)
 			{
 				for(var j=0; j<datapoints.length; j++)
 				{
-					if(this.dataPointsList[i][j] >= this.maxvalue)
+					if(this.dataPointsList[i][j] >= this.maxvalue && this.dataPointsList[i][j] > this.minMaxValue)
 					{
 						this.maxvalue = this.dataPointsList[i][j];
 						this.maxvalueloc = i;
+						this.scale = 1.0 / this.maxvalue;
 					}
 				}
 			}
-			this.scale = 0
-			if(this.maxvalue > this.minMaxValue)
-				this.scale = 1.0 / ((this.maxvalue));
-			else
-				this.scale = 1.0 / ((this.minMaxValue));
+			
 		}
-		
+		if(this.logScale && this.maxvalue > 1.0)
+		{
+			this.scale = 1.0 / Math.log(this.maxvalue);
+		}
+		//global.logError("scale: "+this.scale+" this.max:"+this.maxvalue+" this.minmaxVal:"+this.minMaxValue);
 		return true;
     },
     
@@ -337,17 +333,29 @@ GraphLineChart.prototype = {
 				if(this.maxvalue > this.minMaxValue)
 					maxvalue = this.maxvalue;
 				
-				var val = Math.floor((height-1) * (this.dataPointsList[j][i]/(maxvalue)));
+				//var val = Math.floor((height-1) * (this.dataPointsList[j][i]/(maxvalue)));
 
 				var x1 = this.pixelsPerDataPoint*(j-0.5) + this.pixelsPerDataPoint/4;
 				var x2 = this.pixelsPerDataPoint*(j)+ this.pixelsPerDataPoint/4;
 				
 				if(this.dataPointsList[j][i] == undefined || this.dataPointsList[j-1][i] == undefined) //skip the beginning ones
 					continue;
-				
-				var y1 = height-Math.floor((height-1) * (this.dataPointsList[j-1][i]/(maxvalue)));
-				var y2 = height-Math.floor((height-1) * (this.dataPointsList[j][i]/(maxvalue)));
-
+				var rawy1 = this.dataPointsList[j-1][i];
+				var rawy2 = this.dataPointsList[j][i];
+				if(this.logScale)
+				{
+					//global.logError("Log scale2.");
+					if(rawy1 >= 1)
+						rawy1=Math.log(rawy1);
+					if(rawy2 >= 1)
+						rawy2=Math.log(rawy2);
+				}
+				//var y1 = height-Math.floor((height-1) * (rawy1/(maxvalue)));
+				//var y2 = height-Math.floor((height-1) * (rawy2/(maxvalue)));
+				var y1 = height-Math.floor((height-1) * (rawy1*this.scale));
+				var y2 = height-Math.floor((height-1) * (rawy2*this.scale));
+				//if(y1<0 || y2<0 || y1>30 || y2>30)
+					//global.logError("rawy1: "+rawy1+" rawy2: "+rawy2+" y1: "+y1+" y2:"+y2+" scale: "+this.scale+" maxvale:"+maxvalue+" effscale: "+(1.0/maxvalue)+" this.maxv:"+this.maxvalue);
 				cr.curveTo(x1, y1, x1, y2, x2, y2);
             }
             cr.stroke();
@@ -381,14 +389,14 @@ GraphLineChart.prototype = {
     {
         if (minMaxValue > 0)
         {
-            //this.autoScale = true;
             this.minMaxValue = minMaxValue;
         }
-        //else
-            //this.autoScale = false;
     },
     setAutoScale: function(isautoscale) {
 		this.autoScale = isautoscale;
+	},
+    setLogScale: function(islogscale) {
+		this.logScale = islogscale;
 	},
     drawRoundedRectangle: function(cr, x, y, width, height, radius)
 	{

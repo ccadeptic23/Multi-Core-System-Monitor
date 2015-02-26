@@ -34,7 +34,8 @@ const DEFAULT_CONFIG = {
 							},
 							"net": {
 								"enabled": true,
-								"autoscale": false,
+								"autoscale": true,
+								"logscale": true,
 								"width": 40,
 								"devices":{
 									"eth0": { "enabled": true, "show":true,"colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
@@ -42,11 +43,12 @@ const DEFAULT_CONFIG = {
 							},
 							"disk": {
 								"enabled": true,
-								"autoscale": false,
+								"autoscale": true,
+								"logscale": true,
 								"width": 40,
 								"devices":{
 									"/": { "enabled": true, "show":true, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
-									"win": { "enabled": true, "show":false, "colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]]},
+									
 									},
 							}
 						};
@@ -60,11 +62,12 @@ Preferences.prototype = {
 		
 		try {
 			this.config = JSON.parse(ARGV[0]);
+			
 		} catch (e) {
 			//print("Error: "+e+"\targv[0]="+ARGV[0]);
 			this.config = DEFAULT_CONFIG;
 		}
-		
+
         this.builder = new Gtk.Builder();
         this.builder.add_from_file("prefsui.glade");
 
@@ -81,7 +84,16 @@ Preferences.prototype = {
         this.builder.get_object("cancelButton").connect("clicked", Lang.bind(this, function() {
 			this.win.destroy();
         }));
-        
+        this.aboutScalingwin = this.builder.get_object("scalingAboutDialog");
+        this.builder.get_object("closeAboutScalingButton").connect("clicked", Lang.bind(this, function() {
+			this.aboutScalingwin.hide();
+        }));
+		this.builder.get_object("netAboutScalingButton").connect("clicked", Lang.bind(this, function() {
+			this.aboutScalingwin.run();
+        }));
+        this.builder.get_object("diskAboutScalingButton").connect("clicked", Lang.bind(this, function() {
+			this.aboutScalingwin.run();
+        }));
         this.load();
         
 		print(JSON.stringify(this.config)); //print default settings again for the monitoring process
@@ -93,12 +105,11 @@ Preferences.prototype = {
     load: function()
     {
 		
-		try {
-
+		/*try {
 			this.config = JSON.parse(ARGV[0]);
 		} catch (e) {
 			this.config = DEFAULT_CONFIG;
-		}
+		}*/
 
 		this.setColor("backgroundColorButton",   this.config.backgroundColor);
 		this.builder.get_object("backgroundColorButton").connect("color-set", Lang.bind(this, function() {this.save();}));
@@ -179,9 +190,13 @@ Preferences.prototype = {
 			this.builder.get_object("netSettingsBox").set_sensitive(isEnabled);
 			this.save();
         }));
+        
         this.builder.get_object("netSettingsBox").set_sensitive(this.config.net.enabled);
+        this.builder.get_object("netAutoScaleSwitch").set_active(this.config.net.autoscale);//before connect
         this.builder.get_object("netAutoScaleSwitch").connect("notify::active", Lang.bind(this, function() {this.save();}));
-        this.builder.get_object("netAutoScaleSwitch").set_active(this.config.net.autoscale);
+        this.builder.get_object("netLogScaleSwitch").set_active(this.config.net.logscale); //before connect
+        this.builder.get_object("netLogScaleSwitch").connect("notify::active", Lang.bind(this, function() {this.save();}));
+        
         this.builder.get_object("netWidthScale").set_value(this.config.net.width);
 		this.builder.get_object("netWidthScale").connect("value-changed", Lang.bind(this, function() {this.save();}));
 		
@@ -275,8 +290,11 @@ Preferences.prototype = {
 			this.save();
         }));
         this.builder.get_object("diskSettingsBox").set_sensitive(this.config.disk.enabled);
+        this.builder.get_object("diskAutoScaleSwitch").set_active(this.config.disk.autoscale);//before connect
         this.builder.get_object("diskAutoScaleSwitch").connect("notify::active", Lang.bind(this, function() {this.save();}));
-        this.builder.get_object("diskAutoScaleSwitch").set_active(this.config.disk.autoscale);
+        this.builder.get_object("diskLogScaleSwitch").set_active(this.config.disk.logscale);//before connect
+        this.builder.get_object("diskLogScaleSwitch").connect("notify::active", Lang.bind(this, function() {this.save();}));
+        
         this.builder.get_object("diskWidthScale").set_value(this.config.disk.width);
 		this.builder.get_object("diskWidthScale").connect("value-changed", Lang.bind(this, function() {this.save();}));
 		
@@ -399,6 +417,7 @@ Preferences.prototype = {
 			//NET Settings
 			this.config.net.enabled = this.builder.get_object("netEnableSwitch").get_active();
 			this.config.net.autoscale = this.builder.get_object("netAutoScaleSwitch").get_active();
+			this.config.net.logscale = this.builder.get_object("netLogScaleSwitch").get_active();
 			this.config.net.width = this.builder.get_object("netWidthScale").get_value();
 			var devnum = 0;
 			for(var devname in this.config.net.devices)
@@ -406,21 +425,24 @@ Preferences.prototype = {
 				this.config.net.devices[devname].enabled = this.netEnableSwitchList[devnum].get_active();
 				this.config.net.devices[devname].colors[0] = this.getColorByObject(this.netDownButtonList[devnum]);
 				this.config.net.devices[devname].colors[1] = this.getColorByObject(this.netUpButtonList[devnum]);
+				
 				devnum++;
 			}
 			//Disk Settings
 			this.config.disk.enabled = this.builder.get_object("diskEnableSwitch").get_active();
 			this.config.disk.autoscale = this.builder.get_object("diskAutoScaleSwitch").get_active();
+			this.config.disk.logscale = this.builder.get_object("diskLogScaleSwitch").get_active();
 			this.config.disk.width = this.builder.get_object("diskWidthScale").get_value();
 			var devnum = 0;
 			for(var devname in this.config.disk.devices)
 			{
-				if(typeof this.diskEnableSwitchList[devnum] != 'undefined')
-					this.config.disk.devices[devname].enabled = this.diskEnableSwitchList[devnum].get_active();
+				this.config.disk.devices[devname].enabled = this.diskEnableSwitchList[devnum].get_active();
 				this.config.disk.devices[devname].colors[0] = this.getColorByObject(this.diskDownButtonList[devnum]);
 				this.config.disk.devices[devname].colors[1] = this.getColorByObject(this.diskUpButtonList[devnum]);
+				
 				devnum++;
 			}
+			
             print(JSON.stringify(this.config));
         }
         catch (e)

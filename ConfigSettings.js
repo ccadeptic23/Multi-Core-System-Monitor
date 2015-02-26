@@ -67,6 +67,9 @@ ConfigSettings.prototype = {
 	isNETAutoScaled: function() {
 		return this._prefs.net.autoscale;
 	},
+	isNETLogScaled: function(){
+		return this._prefs.net.logscale;
+	},
 	getNETDisabledDevices: function()
 	{
 		var disabledDeviceList = [];
@@ -106,6 +109,9 @@ ConfigSettings.prototype = {
 	},
 	isDiskAutoScaled: function() {
 		return this._prefs.disk.autoscale;
+	},
+	isDiskLogScaled: function(){
+		return this._prefs.disk.logscale;
 	},
 	getDiskWidth: function() {
 		return this._prefs.disk.width;
@@ -201,7 +207,7 @@ ConfigSettings.prototype = {
                             Gio.FileCreateFlags.NONE,
                             null);
         let out = Gio.BufferedOutputStream.new_sized (raw, 4096);
-        Cinnamon.write_string_to_stream(out, JSON.stringify(this._prefs, null ,""));
+        Cinnamon.write_string_to_stream(out, JSON.stringify(this._prefs,null," "));
         out.close(null);
 	},
 
@@ -227,6 +233,7 @@ ConfigSettings.prototype = {
 							"net": {
 								"enabled": true,
 								"autoscale": true,
+								"logscale": true,
 								"width": 40,
 								"devices":{
 									"eth0": {"enabled": true,show:true,"colors": [[1,1,1,0.8],[0,0,0,0.6]]},
@@ -235,6 +242,7 @@ ConfigSettings.prototype = {
 							"disk": {
 								"enabled": true,
 								"autoscale": true,
+								"logscale": true,
 								"width": 40,
 								"devices":{
 									"/": { "enabled": true, show:true,"colors": [[1,1,1,1],[0.6,0.6,0.6,0.8]] },

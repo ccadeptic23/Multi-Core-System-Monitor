@@ -93,19 +93,23 @@ MyApplet.prototype = {
 			this.configSettings.adjustDiskDevices(this.diskProvider.getDiskDevices());
 			this.diskProvider.setDisabledDevices(this.configSettings.getDiskDisabledDevices());
 			
-			this.configSettings.adjustNetInterfaces(this.netProvider.getNetDevices());
+			this.configSettings.adjustNetInterfaces(Object.keys(this.netProvider.getNetDevices()));
 			this.netProvider.setDisabledInterfaces(this.configSettings.getNETDisabledDevices());
 			
 			this.multiCpuGraph = new Graphs.GraphVBars(this.graphArea, this.multiCpuProvider);
 			this.memGraph = new Graphs.GraphPieChart(this.graphArea, this.memProvider);
 			this.swapGraph = new Graphs.GraphVBars(this.graphArea, this.swapProvider);
+			
 			this.netGraph = new Graphs.GraphLineChart(this.graphArea, this.netProvider, this.configSettings.getNETWidth());
 			this.netGraph.setMinScaleYvalue(1.0); //For us this means the heighest point wont represent a valuelower than 1Kb/s 
 			this.netGraph.setAutoScale(this.configSettings.isNETAutoScaled());
+			this.netGraph.setLogScale(this.configSettings.isNETLogScaled());
 			
 			this.diskGraph = new Graphs.GraphLineChart(this.graphArea, this.diskProvider, this.configSettings.getDiskWidth());
 			this.diskGraph.setMinScaleYvalue(1.0); //For us this means the heighest point wont represent a valuelower than 1Kb/s 
-			
+			this.diskGraph.setAutoScale(this.configSettings.isDiskAutoScaled());
+			this.diskGraph.setLogScale(this.configSettings.isDiskLogScaled());
+						
 			this.graphs = [];
 			this.graphs[0] = this.multiCpuGraph;
 			this.graphs[1] = this.memGraph;
@@ -132,8 +136,7 @@ MyApplet.prototype = {
 		var currprefs = this.configSettings.getCurrentPreferencesString();
 		
 		if(this.childProcessHandler == null)
-			this.childProcessHandler = new SpawnProcess.ProcessSpawnHandler(this.configfilepath, ["prefs.js", currprefs]);
-		
+			this.childProcessHandler = new SpawnProcess.ProcessSpawnHandler(this.configfilepath, ["prefs.js", currprefs]);		
     },
 	on_orientation_changed: function (orientation) {
 		this._initContextMenu();
@@ -157,11 +160,15 @@ MyApplet.prototype = {
 			if(this.childProcessHandler != null)
 			{
 				var currentmsg = this.childProcessHandler.getCurrentMessage();
-				//global.logError(currentmsg);
+				
 				if(currentmsg == "SAVE")
+				{
 					this.configSettings.saveSettings();
+				}
 				else if(currentmsg != "SAVE" && currentmsg != "") //currentmsg is "" when we have not had time to read anything yet
+				{
 					this.configSettings.updateSettings(currentmsg);
+				}
 					
 				if(this.childProcessHandler.isChildFinished()) 
 				{
@@ -172,10 +179,11 @@ MyApplet.prototype = {
 			//Do any required processing when configuration changes
 			this.netProvider.setDisabledInterfaces(this.configSettings.getNETDisabledDevices());
 			this.netGraph.setAutoScale(this.configSettings.isNETAutoScaled());
-			
+			this.netGraph.setLogScale(this.configSettings.isNETLogScaled());
 			//check for new drives that are mounted
 			this.configSettings.adjustDiskDevices( Object.keys(this.diskProvider.getDiskDevices()) );
 			this.diskGraph.setAutoScale(this.configSettings.isDiskAutoScaled());
+			this.diskGraph.setLogScale(this.configSettings.isDiskLogScaled());
 			
 			//update data from providers.. a bit convoluted i may change later
 			
