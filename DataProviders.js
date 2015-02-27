@@ -396,6 +396,9 @@ DiskDataProvider.prototype = {
 	},
 	getDiskDevices: function()
 	{
+		//Annoying to get list of disks that are not net attached or cd/dvd's
+		//There must be a simpler way
+		//and libgtop's methods for this have been disabled for some reason.
 		var volumeMonitor = Gio.VolumeMonitor.get();
 		var vols = volumeMonitor.get_volumes();
 		var volDirs = {};
@@ -403,14 +406,19 @@ DiskDataProvider.prototype = {
 		
 		for(var i = 0; i < vols.length; i++)
 		{
+			var isDisk=true;
 			var dname = vols[i].get_name();
 			var mnt = vols[i].get_mount();
-			if(mnt!=null)
+			var drv = mnt.get_drive();
+			if(drv!=null)
+				isDisk = !drv.is_media_removable();
+			if(mnt!=null && isDisk)
 			{
 				var mntroot = mnt.get_root();
 				if(this.disabledDevices.indexOf(dname) == -1) //device is enabled
 					volDirs[dname] = mntroot.get_path();
 			}
+
 		}
 		
 		return volDirs;
