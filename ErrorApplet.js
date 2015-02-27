@@ -17,7 +17,7 @@ ErrorImportApplet.prototype = {
 
         try {
             
-            this.set_applet_icon_name("dialog-info");
+            this.set_applet_icon_name("error");
             this.set_applet_tooltip(_("Multi-core System Monitor Error."));
             
             this.menuManager = new PopupMenu.PopupMenuManager(this);

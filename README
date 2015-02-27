@@ -40,6 +40,24 @@ Known issues
 
 Changelog
 =========
+
+Version 1.5
+-----------
+Disk IO monitoring is now no longer in beta
+Applet no longer attempts to read from disabled devices.
+Added Logarithmic scaling option. And description of scaling options to prefs window.
+Also prefs window will no longer show devices it dected in the past. But settings will be retained. 
+	(ie wont show all flash drives ever put into machine, but will remember colors set for them)
+Several bug fixes.
+
+Version 1.45
+-----------
+Fixed gjs shebang to cjs this was why the preferences werent working
+Lots of small changes, some code clean up, and "/" mountpoint monitoring
+Changed code so that all versions of ubuntu can use the same applet
+Added the use of an error icon when the applet fails due to gtop not being installed. 
+Network line graph now has auto scaling disabled. Its too hard to see what is going on when the axis keeps changing.
+
 Version 1.4
 -----------
 added ability to seperate code into different files
