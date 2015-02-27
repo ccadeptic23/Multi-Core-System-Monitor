@@ -351,7 +351,8 @@ DiskDataProvider.prototype = {
 			}
 			else
 			{
-				global.logError("new device: "+dname);
+				//new device was just plugged in
+				//global.logError("new device: "+dname);
 			}
 		}
 		
