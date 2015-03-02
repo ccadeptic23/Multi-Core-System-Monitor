@@ -409,13 +409,14 @@ DiskDataProvider.prototype = {
 			var isDisk=true;
 			var dname = vols[i].get_name();
 			var mnt = vols[i].get_mount();
-			var drv = mnt.get_drive();
-			if(drv!=null)
-				isDisk = !drv.is_media_removable();
-			if(mnt!=null && isDisk)
+			
+			if(mnt!=null)
 			{
+				var drv = mnt.get_drive();
+				if(drv!=null)
+					isDisk = !drv.is_media_removable();
 				var mntroot = mnt.get_root();
-				if(this.disabledDevices.indexOf(dname) == -1) //device is enabled
+				if(isDisk && this.disabledDevices.indexOf(dname) == -1) //device is enabled, and is a disk
 					volDirs[dname] = mntroot.get_path();
 			}
 
