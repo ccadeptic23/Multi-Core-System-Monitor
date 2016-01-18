@@ -138,10 +138,6 @@ MyApplet.prototype = {
 		if(this.childProcessHandler == null)
 			this.childProcessHandler = new SpawnProcess.ProcessSpawnHandler(this.configfilepath, ["prefs.js", currprefs]);		
     },
-	on_orientation_changed: function (orientation) {
-		this._initContextMenu();
-	},
-	
 	_runSysMon: function() {
 		let _appSys = Cinnamon.AppSystem.get_default();
 		let _gsmApp = _appSys.lookup_app('gnome-system-monitor.desktop');
