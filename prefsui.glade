@@ -841,7 +841,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="halign">start</property>
-                            <property name="margin_left">58</property>
+                            <property name="margin_left">57</property>
                             <property name="use_alpha">True</property>
                             <property name="title" translatable="yes">Pick a Color - Swap Memory</property>
                           </object>
