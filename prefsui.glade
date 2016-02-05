@@ -61,10 +61,14 @@
           <object class="GtkNotebook" id="notebook1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="margin_left">5</property>
+            <property name="margin_right">5</property>
             <child>
               <object class="GtkBox" id="generalTabBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">2</property>
+                <property name="margin_right">2</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="generalLabelsOnBox">
@@ -95,6 +99,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="padding">2</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -102,7 +107,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="padding">6</property>
+                    <property name="padding">4</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -114,6 +119,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
+                    <property name="padding">8</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -196,11 +202,11 @@
                     </child>
                     <child>
                       <object class="GtkScale" id="heightScale">
-                        <property name="width_request">283</property>
+                        <property name="width_request">286</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">end</property>
-                        <property name="margin_right">17</property>
+                        <property name="margin_right">14</property>
                         <property name="adjustment">heightAdjustment</property>
                         <property name="round_digits">1</property>
                         <property name="digits">0</property>
@@ -288,6 +294,8 @@
               <object class="GtkBox" id="cpuTabBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">2</property>
+                <property name="margin_right">2</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="cpuEnableBox">
@@ -460,6 +468,8 @@
               <object class="GtkBox" id="memTabBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">2</property>
+                <property name="margin_right">2</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="memEnableBox">
@@ -593,7 +603,35 @@
                       <object class="GtkBox" id="memColorsBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="valign">center</property>
                         <property name="homogeneous">True</property>
+                        <child>
+                          <object class="GtkBox" id="box5">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="valign">center</property>
+                            <property name="margin_left">10</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkLabel" id="ramLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">RAM</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
                         <child>
                           <object class="GtkBox" id="box7">
                             <property name="visible">True</property>
@@ -603,7 +641,7 @@
                               <object class="GtkLabel" id="usedupLabel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Usedup</property>
+                                <property name="label" translatable="yes">Used</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -619,6 +657,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="halign">center</property>
                                 <property name="use_alpha">True</property>
+                                <property name="title" translatable="yes">Pick a Color - Used Memory</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -630,7 +669,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -658,6 +697,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="halign">center</property>
                                 <property name="use_alpha">True</property>
+                                <property name="title" translatable="yes">Pick a Color - Cached Memory</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -669,7 +709,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -681,7 +721,7 @@
                               <object class="GtkLabel" id="bufferLabel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Buffer</property>
+                                <property name="label" translatable="yes">Buffers</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -697,6 +737,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="halign">center</property>
                                 <property name="use_alpha">True</property>
+                                <property name="title" translatable="yes">Pick a Color - Buffers Memory</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -708,7 +749,7 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -736,6 +777,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="halign">center</property>
                                 <property name="use_alpha">True</property>
+                                <property name="title" translatable="yes">Pick a Color - Free Memory</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -747,14 +789,14 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="padding">10</property>
+                        <property name="padding">6</property>
                         <property name="position">4</property>
                       </packing>
                     </child>
@@ -762,6 +804,7 @@
                       <object class="GtkSeparator" id="separator10">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="margin_left">60</property>
                         <property name="margin_bottom">5</property>
                       </object>
                       <packing>
@@ -774,6 +817,7 @@
                       <object class="GtkBox" id="swapBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="valign">center</property>
                         <child>
                           <object class="GtkLabel" id="swapLabel">
                             <property name="visible">True</property>
@@ -797,7 +841,9 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="halign">start</property>
+                            <property name="margin_left">57</property>
                             <property name="use_alpha">True</property>
+                            <property name="title" translatable="yes">Pick a Color - Swap Memory</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -809,6 +855,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="padding">2</property>
                         <property name="position">6</property>
                       </packing>
                     </child>
@@ -840,6 +887,8 @@
               <object class="GtkBox" id="netTabBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">2</property>
+                <property name="margin_right">2</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="netEnableBox">
@@ -982,6 +1031,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_text" translatable="yes">about scaling...</property>
                                 <property name="halign">start</property>
                                 <property name="relief">none</property>
                                 <property name="xalign">0</property>
@@ -1162,6 +1212,8 @@
               <object class="GtkBox" id="DiskTabBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">2</property>
+                <property name="margin_right">2</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="diskEnableBox">
@@ -1315,6 +1367,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_text" translatable="yes">about scaling...</property>
                                 <property name="halign">start</property>
                                 <property name="relief">none</property>
                                 <property name="xalign">0</property>
@@ -1496,6 +1549,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
+            <property name="padding">6</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -1503,10 +1557,12 @@
           <object class="GtkButtonBox" id="buttonbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">spread</property>
+            <property name="margin_right">5</property>
+            <property name="spacing">6</property>
+            <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="applyButton">
-                <property name="label">gtk-save</property>
+              <object class="GtkButton" id="cancelButton">
+                <property name="label">gtk-cancel</property>
                 <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -1520,8 +1576,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="cancelButton">
-                <property name="label">gtk-cancel</property>
+              <object class="GtkButton" id="applyButton">
+                <property name="label">gtk-save</property>
                 <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -1536,8 +1592,9 @@
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
+            <property name="padding">6</property>
             <property name="position">3</property>
           </packing>
         </child>
@@ -1546,32 +1603,43 @@
   </object>
   <object class="GtkMessageDialog" id="scalingAboutDialog">
     <property name="can_focus">False</property>
+    <property name="halign">start</property>
+    <property name="valign">start</property>
+    <property name="border_width">2</property>
+    <property name="title" translatable="yes">Scaling...</property>
+    <property name="resizable">False</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon_name">preferences-system</property>
     <property name="type_hint">dialog</property>
-    <property name="text" translatable="yes">Scaling Description</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="deletable">False</property>
+    <property name="has_resize_grip">False</property>
+    <property name="text" translatable="yes">
+Scaling Description</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="messagedialog-vbox">
+        <property name="width_request">400</property>
         <property name="can_focus">False</property>
+        <property name="halign">start</property>
+        <property name="valign">start</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="messagedialog-action_area">
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="closeAboutScalingButton">
-                <property name="label" translatable="yes">Close</property>
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
-            </child>
-            <child>
-              <placeholder/>
             </child>
           </object>
           <packing>
@@ -1582,35 +1650,113 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="label2">
+          <object class="GtkBox" id="auto-scaling">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="margin_left">10</property>
-            <property name="margin_right">10</property>
-            <property name="margin_top">5</property>
-            <property name="margin_bottom">10</property>
-            <property name="label" translatable="yes">Auto Scaling:
-	This will scale the line graph by the largest reading within the
-	displayed area. Once the largest reading is no longer displayed 
-	the next largest becomes the new value by which the readings
-	are scaled. This lets the plot "zoom" to show details of the graph.
-	However, it also means that if there is a large reading small readings 
-	may become indistinguishable from 0. And if there are only small readings
-	then slightly larger readings may appear larger than they should.
-	If not enabled the largest value used will be the largest reading since
-	cinnamon was started.
-
-Logarithmic Scaling:
-	This transforms the readings so that they are displayed using a
-	logarithmic scale. If you are not familiar basically, it reduces the
-	large values so that they dont dominate the smaller readings.</property>
-            <property name="ellipsize">middle</property>
-            <property name="lines">5</property>
+            <property name="border_width">5</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="auto-scaling-title">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin_bottom">5</property>
+                <property name="xpad">15</property>
+                <property name="label" translatable="yes">Auto Scaling:</property>
+                <property name="single_line_mode">True</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="auto-scaling-context">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">15</property>
+                <property name="label" translatable="yes">	This will scale the line graph by the largest reading within the displayed area. Once the largest reading is no longer displayed the next largest becomes the new value by which the readings are scaled. This lets the plot "zoom" to show details of the graph. However, it also means that if there is a large reading small readings may become indistinguishable from 0. And if there are only small readings then slightly larger readings may appear larger than they should. If not enabled the largest value used will be the largest reading since cinnamon was started.</property>
+                <property name="justify">fill</property>
+                <property name="wrap">True</property>
+                <property name="wrap_mode">word-char</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">True</property>
+            <property name="fill">False</property>
             <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="logarithmic-scaling">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="border_width">5</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="logarithmic-scaling-title">
+                <property name="name">0</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">start</property>
+                <property name="margin_top">6</property>
+                <property name="margin_bottom">5</property>
+                <property name="xpad">15</property>
+                <property name="label" translatable="yes">Logarithmic Scaling:</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="logarithmic-scaling-context">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">15</property>
+                <property name="label" translatable="yes">	This transforms the readings so that they are displayed using a logarithmic scale. If you are not familiar with it, it basically reduces the large values so that they don't dominate the smaller readings.</property>
+                <property name="justify">fill</property>
+                <property name="wrap">True</property>
+                <property name="wrap_mode">word-char</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSeparator" id="separator16">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="margin_top">8</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">4</property>
           </packing>
         </child>
       </object>
